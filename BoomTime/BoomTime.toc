@@ -1,0 +1,21 @@
+## Interface: 11303
+## Title: alaMisc
+## Title-zhCN: 爆本监控
+## Title-zhTW: 爆本监控
+## SavedVariablesPerCharacter: 
+## SavedVariables: boomTimeSv
+## Notes: BoomTime
+## Dependencies: 
+## OptionalDependencies: 
+## LoadOnDemand: 0
+## DefaultState: enabled
+## Author: |cff00ff00ALA|r @ |cffff0000163UI|r
+## Author-zhCN: |cff00ff00ALA|r @ |cffff0000雪花君|r
+## Author-zhTW: |cff00ff00ALA|r @ |cffff0000雪花君|r
+## Version: 113r.191127
+
+BoomTime.xml
+
+
+## Title-zhCN: |cff880303[爆本]|r 爆本计时器
+## X-Vendor: XueHua

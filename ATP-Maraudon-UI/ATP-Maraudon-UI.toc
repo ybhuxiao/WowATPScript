@@ -1,0 +1,16 @@
+## Interface: 8888
+## Title: ATP-Maraudon-UI
+## Notes: ATP
+## Author: ATP
+## Version: 8.0.0
+## DefaultState: Enabled
+## SavedVariables: ATPSettings
+## Dependencies: DoMeWhen-Classic
+
+# Libraries
+Libs\PLoop\PLoop.xml
+Libs\Scorpio\Scorpio.xml
+
+Utils.lua
+Core.lua
+UI.lua
