@@ -37,3 +37,25 @@ myFrame:SetScript("OnUpdate", function ()
 		end
 	end
 end);
+
+local Addons = {}
+local EventListeners = {}
+
+ local function onEvent(self, event, ...)
+    if EventListeners[event] then
+      for listener in pairs(EventListeners[event]) do
+        listener:OnEvent(event, ...)
+      end
+    end
+  end
+
+  local function initial_onEvent(self, event, ...)
+    self:UnregisterEvent(event)
+      self:SetScript("OnEvent", onEvent)
+      for _, t in pairs(Addons) do
+        t:OnInitialize()
+        t.OnInitialize = nil
+      end
+  end
+
+  myFrame:SetScript("OnEvent", initial_onEvent)
