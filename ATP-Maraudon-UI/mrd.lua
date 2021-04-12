@@ -161,7 +161,27 @@ end)() local Areas = {
     [12] = { { x = 605.68389892578, y = -198.12298583984, z = -63.89769744873, node = 0 }, { x = 624.94525146484, y = -196.26312255859, z = -63.89769744873, node = 1 }, { x = 624.20263671875, y = -212.93765258789, z = -63.89769744873, node = 2 }, { x = 613.68835449219, y = -216.74829101563, z = -63.89769744873, node = 3 }, },
     [13] = { { x = 651.35205078125, y = -353.76712036133, z = -52.01936340332, node = 0 }, { x = 642.34185791016, y = -350.69177246094, z = -52.01936340332, node = 1 }, { x = 649.93682861328, y = -340.6091003418, z = -52.01936340332, node = 2 }, { x = 657.25311279297, y = -343.54449462891, z = -52.01936340332, node = 3 }, },
     [14] = { { x = 649.34936523438, y = -227.81301879883, z = -63.89769744873, node = 0 }, { x = 655.91088867188, y = -236.14860534668, z = -63.89769744873, node = 1 }, { x = 665.66412353516, y = -230.15240478516, z = -63.897701263428, node = 2 }, { x = 659.48205566406, y = -218.28807067871, z = -63.89769744873, node = 3 }, },
-} local SWING_COUNT = 0 local PLAYER_ENTERING_WORLD = false local TOO_MANY_INSTANCES = false local PROCESS_STATE = { START_SOLO = "START_SOLO", SUPPLY = "SUPPLY", MAIL = "MAIL", GOTO_INSTANCE = "GOTO_INSTANCE", TOWN_TO_INSTANCE = "TOWN_TO_INSTANCE", ENTER_INSTANCE = "ENTER_INSTANCE", EXIT_INSTANCE = "EXIT_INSTANCE", RESET_INSTANCE = "RESET_INSTANCE", RESURRECTION = "RESURRECTION", TIMEOUT = "TIMEOUT" } local CURRENT_PROCESS = PROCESS_STATE.EXIT_INSTANCE local LAST_PROCESS local PROCESS_ROUTER = {} local function ChangeProcess(Process) Log.Write(nil, string.format("%s %s", CURRENT_PROCESS, Process)) LAST_PROCESS = CURRENT_PROCESS CURRENT_PROCESS = Process PROCESS_ROUTER[CURRENT_PROCESS].Reset() end
+} local SWING_COUNT = 0 local PLAYER_ENTERING_WORLD = false local TOO_MANY_INSTANCES = false 
+
+
+local PROCESS_STATE = { 
+    START_SOLO = "START_SOLO", 
+    SUPPLY = "SUPPLY", 
+    MAIL = "MAIL", 
+    GOTO_INSTANCE = "GOTO_INSTANCE", 
+    TOWN_TO_INSTANCE = "TOWN_TO_INSTANCE", 
+    ENTER_INSTANCE = "ENTER_INSTANCE", 
+    EXIT_INSTANCE = "EXIT_INSTANCE", 
+    RESET_INSTANCE = "RESET_INSTANCE", 
+    RESURRECTION = "RESURRECTION", 
+    TIMEOUT = "TIMEOUT" 
+} 
+
+local CURRENT_PROCESS = PROCESS_STATE.EXIT_INSTANCE 
+local LAST_PROCESS 
+local PROCESS_ROUTER = {} 
+
+local function ChangeProcess(Process) Log.Write(nil, string.format("%s %s", CURRENT_PROCESS, Process)) LAST_PROCESS = CURRENT_PROCESS CURRENT_PROCESS = Process PROCESS_ROUTER[CURRENT_PROCESS].Reset() end
 
 local UpdateBlizzardTime = function(elapsed) local info = { ChannelInfo("player") } if info and info[1] == "暴风雪" then if ATP_BLIZZARD_START == 0 then ATP_BLIZZARD_CONTINUED = 0 else ATP_BLIZZARD_CONTINUED = ATP_BLIZZARD_CONTINUED + elapsed end ATP_SPELL_BLIZZARD_COUNT = ATP_SPELL_BLIZZARD_COUNT + 1 if info[5] > ATP_TIME * 1000 then ATP_BLIZZARD_START = info[4] / 1000 ATP_BLIZZARD_TIME = ATP_TIME * 1000 - info[4] end if ATP_BLIZZARD_TIME < 0 then ATP_BLIZZARD_TIME = 0 end else if ATP_BLIZZARD_START ~= 0 then ATP_BLIZZARD_CONTINUED = ATP_BLIZZARD_CONTINUED + elapsed end ATP_BLIZZARD_START = 0 ATP_BLIZZARD_TIME = 0 end end local function StartSolo() local out = {} local SOLO_STATE = { INIT = "INIT", PREPARE = "PREPARE", GET_READY = "GET_READY", LURE = "LURE", LURE_1 = "LURE_1", LURE_2 = "LURE_2", LURE_EX = "LURE_EX", GATHER_1 = "GATHER_1", COMBAT = "COMBAT", LOOT = "LOOT" } local SOLO_ROUTE = {} local CURRENT_STATE = SOLO_STATE.PREPARE local LURE_STOP_MOVE = false local PATROL_TARGET = nil local BLIZZARD_CASTING_TIME = 0 local OPEN_PACK_TIMER = 10 local NearPosition = function(position, distance, isElite) local count = 0 local Table = {} for _, v in pairs(DMW.Units) do if v.Target and position:Distance2D(v) < distance and (not isElite or v.Classification == "elite") then count = count + 1 table.insert(Table, v) end end return count, Table end local NearPlayer = function(distance, all) all = all or false local Count = 0 local Table = {} for _, v in pairs(DMW.Units) do if not v.Dead and not v.Player and UnitAffectingCombat(v.Pointer) and (all or v.Classification == "elite") and v.ReachDistance < distance then Count = Count + 1 table.insert(Table, v) end end return Count, Table end local ImpCount = function(distance) local Count = 0 for _, v in pairs(DMW.Units) do if not v.Dead and v.Name == "毒劣魔" and v.ReachDistance < distance and UnitAffectingCombat(v.Pointer) then Count = Count + 1 end end return Count end local ImpAreaCount = function(x, y, z, radius) local nx, ny = false, false local full_circle = math.rad(360) local small_circle_step = math.rad(90) local area = {} for v = 0, full_circle, small_circle_step do nx, ny = (x + math.cos(v) * radius), (y + math.sin(v) * radius) table.insert(area, { x = nx, y = ny, z = z }) end local count = 0 for _, v in pairs(DMW.Units) do if ATP.IsInRegion(v.PosX, v.PosY, area) and not v.Dead and v.Name == "毒劣魔" and UnitAffectingCombat(v.Pointer) then count = count + 1 end end return count end local BestRank = function(SpellName) local rank = 1 local highestRank = Spell[SpellName]:HighestRank() if not Player:AuraByID(12536) and Player.PowerPct < 85 then for i = highestRank, 1, -1 do if Player.Power > Spell[SpellName]:Cost(i) then rank = i break end end else rank = highestRank end return rank end CastBlizzard = function(position, rank) if not Player.Moving and Player:GCDRemain() == 0 then local MouseLooking = false local _rank = BestRank("Blizzard") if rank then rank = math.min(_rank, rank) else rank = _rank end APT_LAST_BLIZZARD_POSITION = position if Spell.Blizzard:IsReady(rank) then if IsMouselooking() then MouseLooking = true MouselookStop() end CastSpellByID(Spell.Blizzard.Ranks[rank]) ClickPosition(APT_LAST_BLIZZARD_POSITION.X, APT_LAST_BLIZZARD_POSITION.Y, APT_LAST_BLIZZARD_POSITION.Z) if MouseLooking then MouselookStart() end Delay(1000) return true end end end local function ChangeTask(Task) Log.Write(nil, string.format("%s %s", CURRENT_STATE, Task)) CURRENT_STATE = Task end
 
@@ -338,14 +358,128 @@ end
 local function Timeout() local out = {} local FP_WAIT = FixedPath({ { x = 759.63513183594, y = -610.75122070313, z = -32.592868804932, node = 0 }, { x = 751.60797119141, y = -598.09271240234, z = -33.233413696289, node = 1 }, { x = 748.93121337891, y = -609.42797851563, z = -33.218963623047, node = 2 }, }, 1.5) local FP_ENTER = FixedPath({ { x = -1183.4114990234, y = 2875.0837402344, z = 85.824409484863, node = 0 }, { x = -1182.9838867188, y = 2865.9333496094, z = 85.434700012207, node = 1 }, }, 1.5, true) local POS_CENTER = Position(752.319397, -604.496216, -33.250015) local time = 0 local doBandage = true local IsSendMsg = false out.Reset = function() time = 0 FP_WAIT:Reset() doBandage = true IsSendMsg = true end out.Run = function() if PLAYER_ENTERING_WORLD then PLAYER_ENTERING_WORLD = false Log.Write("ff0000", "场景切换等待2秒") Delay(2000) end if Player.Instance == "none" then if not IsSendMsg then SendPartyMessage(ATP.Settings.EnterFollow) IsSendMsg = true end if FP_ENTER:NavMove() then MoveForwardStart() Delay(500) MoveForwardStop() Delay(1000) FP_ENTER:Reset() end else local to = InstanceTimer.Timeout(4) if to ~= 0 then local x, y, z = ATP.RandomPoint(POS_CENTER.X, POS_CENTER.Y, POS_CENTER.Z, 12) if x and y and z then MoveTo(x, y, z) local m = math.random(1, 3) if m == 1 then JumpOrAscendStart() AscendStop() elseif m == 2 then if Spell.ArcaneExplosion:IsReady(1) and Spell.ArcaneExplosion:Cast(Player, 1) then end else if not Spell.FrostNova:LastCast() and Spell.FrostNova:IsReady() and Spell.FrostNova:Cast(Player, 1) then end end Log.Write("ff0000", "爆本等待%s秒", to) local r = math.random(10, 30) Delay(r * 1000) end else ChangeProcess(PROCESS_STATE.EXIT_INSTANCE) end end end return out
 end
 
-local function Resurrection() local out = {} local CORPSE_PATH = { { x = -1175.731567, y = 2736.417236, z = 111.752739 }, { x = -1416.323242, y = 2887.026367, z = 132.790710 }, { x = -1416.323242, y = 2887.026367, z = 132.790710 }, { x = -1182.9838867188, y = 2865.9333496094, z = 85.434700012207, node = 1 }, } local DeadZone = 0 local CorpsePaths = nil local CorpsePosX, CorpsePosY, CorpsePosZ local IsReset = false out.Reset = function() DeadZone = 0 CorpsePaths = nil CorpsePosX, CorpsePosY, CorpsePosZ = nil, nil, nil IsReset = false end out.Run = function() if UnitIsDead("player") then Delay(2000) Scorpio.Next() if DeadZone == 0 then if Player.Instance == "party" then DeadZone = 1 else DeadZone = 2 end end Log.Write("ff0000", "等待释放,复活路线-%d", DeadZone) Delay(3000) RepopMe() Delay(5000) end if not CorpsePaths and UnitIsGhost("player") then if DeadZone == 0 or DeadZone == 1 then CorpsePaths = FixedPath(CORPSE_PATH, 2, true) elseif DeadZone == 2 then CorpsePosX, CorpsePosY, CorpsePosZ = GetCorpsePosition() local newPath = CalculatePath(GetMapId(), Player.PosX, Player.PosY, Player.PosZ, CorpsePosX, CorpsePosY, CorpsePosZ, true, false, 0) local temp = {} for i = 1, #newPath do table.insert(temp, { x = newPath[i][1], y = newPath[i][2], z = newPath[i][3] }) end CorpsePaths = FixedPath(temp, 2, true) end end if CorpsePaths then if PLAYER_ENTERING_WORLD then PLAYER_ENTERING_WORLD = false Log.Write("ff0000", "场景切换等待2秒") Delay(2000) end if Player.Health > 100 then StopMove() if Player.Instance == "party" then if NeedRepair(25) then ChangeProcess(PROCESS_STATE.EXIT_INSTANCE) else if ATP_NEED_RESET then ChangeProcess(PROCESS_STATE.EXIT_INSTANCE) else ChangeProcess(PROCESS_STATE.START_SOLO) end end else ChangeProcess(LAST_PROCESS) end elseif Player.Instance == "none" and UnitIsGhost("player") then if CorpsePaths:NavMove() then MoveForwardStart() Delay(500) MoveForwardStop() Delay(1000) CorpsePaths:Reset() end if not CorpsePosX then CorpsePosX, CorpsePosY, CorpsePosZ = GetCorpsePosition() end if StaticPopup1 and StaticPopup1:IsVisible() and (StaticPopup1.which == "DEATH" or StaticPopup1.which == "RECOVER_CORPSE") and StaticPopup1Button1 and StaticPopup1Button1:IsEnabled() and Position(CorpsePosX, CorpsePosY, CorpsePosZ):Distance2D(Player) < 20 then StaticPopup1Button1:Click() Delay(1000) end end end
-end return out
+local function Resurrection() 
+    local out = {} 
+    local CORPSE_PATH = { 
+        { x = -1175.731567, y = 2736.417236, z = 111.752739 }, 
+        { x = -1416.323242, y = 2887.026367, z = 132.790710 }, 
+        { x = -1416.323242, y = 2887.026367, z = 132.790710 }, 
+        { x = -1182.9838867188, y = 2865.9333496094, z = 85.434700012207, node = 1 }, 
+    } 
+    local DeadZone = 0 
+    local CorpsePaths = nil 
+    local CorpsePosX, CorpsePosY, CorpsePosZ 
+    local IsReset = false 
+    
+    out.Reset = function() 
+        DeadZone = 0 
+        CorpsePaths = nil 
+        CorpsePosX, CorpsePosY, CorpsePosZ = nil, nil, nil 
+        IsReset = false 
+    end 
+    
+    out.Run = function() 
+        if UnitIsDead("player") then 
+            Delay(2000) Scorpio.Next() 
+            
+            if DeadZone == 0 then 
+                if Player.Instance == "party" then 
+                    DeadZone = 1 
+                else 
+                    DeadZone = 2 
+                end 
+            end 
+            
+            Log.Write("ff0000", "等待释放,复活路线-%d", DeadZone) 
+            Delay(3000) 
+            RepopMe() 
+            Delay(5000) 
+        end 
+        
+        if not CorpsePaths and UnitIsGhost("player") then 
+            if DeadZone == 0 or DeadZone == 1 then 
+                CorpsePaths = FixedPath(CORPSE_PATH, 2, true) 
+            elseif DeadZone == 2 then 
+                CorpsePosX, CorpsePosY, CorpsePosZ = GetCorpsePosition() 
+                local newPath = CalculatePath(GetMapId(), Player.PosX, Player.PosY, Player.PosZ, CorpsePosX, CorpsePosY, CorpsePosZ, true, false, 0) 
+                
+                local temp = {} for i = 1, #newPath do table.insert(temp, { x = newPath[i][1], y = newPath[i][2], z = newPath[i][3] }) 
+                end 
+                
+                CorpsePaths = FixedPath(temp, 2, true) 
+            end 
+        
+        end 
+        
+        if CorpsePaths then 
+            if PLAYER_ENTERING_WORLD then 
+                PLAYER_ENTERING_WORLD = false 
+                Log.Write("ff0000", "场景切换等待2秒") 
+                Delay(2000) 
+            end 
+            
+            if Player.Health > 100 then 
+                StopMove() 
+                if Player.Instance == "party" then 
+                    if NeedRepair(25) then 
+                        ChangeProcess(PROCESS_STATE.EXIT_INSTANCE) 
+                    else 
+                        if ATP_NEED_RESET then 
+                            ChangeProcess(PROCESS_STATE.EXIT_INSTANCE) 
+                        else 
+                            ChangeProcess(PROCESS_STATE.START_SOLO) 
+                        end 
+                    end 
+                
+                else 
+                    ChangeProcess(LAST_PROCESS) 
+                end 
+            elseif Player.Instance == "none" and UnitIsGhost("player") then 
+                if CorpsePaths:NavMove() then 
+                    MoveForwardStart() 
+                    Delay(500) 
+                    MoveForwardStop() 
+                    Delay(1000) 
+                    CorpsePaths:Reset() 
+                end 
+                
+                if not CorpsePosX then 
+                    CorpsePosX, CorpsePosY, CorpsePosZ = GetCorpsePosition() 
+                end 
+                
+                if StaticPopup1 and StaticPopup1:IsVisible() and (StaticPopup1.which == "DEATH" or StaticPopup1.which == "RECOVER_CORPSE") and StaticPopup1Button1 and StaticPopup1Button1:IsEnabled() and Position(CorpsePosX, CorpsePosY, CorpsePosZ):Distance2D(Player) < 20 then 
+                    StaticPopup1Button1:Click() Delay(1000) 
+                end 
+            end 
+        end
+end 
+return out
 end
 
-local EventFrame = CreateFrame("Frame") EventFrame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED") EventFrame:RegisterEvent("UI_ERROR_MESSAGE") EventFrame:RegisterEvent("CHAT_MSG_SYSTEM") EventFrame:RegisterEvent("PLAYER_ENTERING_WORLD") EventFrame:RegisterEvent("LOOT_BIND_CONFIRM") EventFrame:RegisterEvent("UNIT_SPELLCAST_START") EventFrame:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED") EventFrame:RegisterEvent("UNIT_SPELLCAST_STOP") EventFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_START") EventFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_STOP") EventFrame:RegisterEvent("PLAYER_LEAVING_WORLD") EventFrame:RegisterEvent("PLAYER_DEAD") EventFrame:RegisterEvent("BAG_UPDATE_DELAYED") EventFrame:SetScript("OnEvent", function(self, event, ...) if event == "COMBAT_LOG_EVENT_UNFILTERED" then EventFrame[event](CombatLogGetCurrentEventInfo()) else EventFrame[event](...) end end) function EventFrame.PLAYER_LEAVING_WORLD(...) InstanceTimer.UpdatePlayed(true) end
+local EventFrame = CreateFrame("Frame") 
+EventFrame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED") 
+EventFrame:RegisterEvent("UI_ERROR_MESSAGE") 
+EventFrame:RegisterEvent("CHAT_MSG_SYSTEM") 
+EventFrame:RegisterEvent("PLAYER_ENTERING_WORLD") 
+EventFrame:RegisterEvent("LOOT_BIND_CONFIRM") 
+EventFrame:RegisterEvent("UNIT_SPELLCAST_START") 
+EventFrame:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED") 
+EventFrame:RegisterEvent("UNIT_SPELLCAST_STOP") 
+EventFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_START") 
+EventFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_STOP") 
+EventFrame:RegisterEvent("PLAYER_LEAVING_WORLD") 
+EventFrame:RegisterEvent("PLAYER_DEAD") 
+EventFrame:RegisterEvent("BAG_UPDATE_DELAYED") 
+EventFrame:SetScript("OnEvent", function(self, event, ...) 
+    if event == "COMBAT_LOG_EVENT_UNFILTERED" then 
+        EventFrame[event](CombatLogGetCurrentEventInfo()) 
+    else 
+        EventFrame[event](...) 
+    end 
+end) 
 
+function EventFrame.PLAYER_LEAVING_WORLD(...) InstanceTimer.UpdatePlayed(true) end
 function EventFrame.UNIT_SPELLCAST_CHANNEL_START(...) end
-
 function EventFrame.UNIT_SPELLCAST_CHANNEL_STOP(...) end
 
 function EventFrame.COMBAT_LOG_EVENT_UNFILTERED(...) if GetObjectWithGUID then local eventName = select(2, ...) if eventName == "SPELL_CAST_SUCCESS" then local destination = select(8, ...) local spellName = select(13, ...) ATP_SPELL_CAST_SUCCESS.Time = DMW.Time ATP_SPELL_CAST_SUCCESS.SpellName = spellName ATP_SPELL_CAST_SUCCESS.Destination = destination end end end
@@ -368,7 +502,40 @@ function EventFrame.PLAYER_DEAD(...) InstanceTimer.PlayerDead() end
 
 function EventFrame.BAG_UPDATE_DELAYED(...) Bag:UpdateItems() end
 
-local SystemStop = false local ATP_CMD = function(CMD) CMD = string.upper(CMD) if PROCESS_STATE[CMD] then if not ATP_START_TASK then Log.Write("ff0000", "开始运行") ChangeProcess(PROCESS_STATE[CMD]) SystemStop = false ATP_START_TASK = true Scorpio.Continue(ATP_ProcessRun) end elseif CMD == "STOP" then Log.Write("ff0000", "停止运行") ATP_START_TASK = false else Log.Write("ff0000", "命令错误") end end local WebApi = (function() local root = "https://www.wowatp.com/api" local char, head, count, salt = nil, 0, 0, time() + 2518 for i = 1, #root do char = string.sub(root, i, i) head = head + string.byte(char) if tonumber(char) then count = count + 1 end end if count == 0 and head + time() == salt then x3G2G9GcUbLcXkSMKsdR4NEavg8PmSfNArR = count end local function urlEncode(s) s = string.gsub(s, "([^%w%.%- ])", function(c) return string.format("%%%02X", string.byte(c)) end) return string.gsub(s, " ", "+") end
+local SystemStop = false 
+
+local ATP_CMD = function(CMD) 
+    CMD = string.upper(CMD) 
+    if PROCESS_STATE[CMD] then 
+        if not ATP_START_TASK then 
+            Log.Write("ff0000", "开始运行") 
+            ChangeProcess(PROCESS_STATE[CMD]) 
+            SystemStop = false 
+            ATP_START_TASK = true 
+            Scorpio.Continue(ATP_ProcessRun) end 
+        elseif CMD == "STOP" then 
+            Log.Write("ff0000", "停止运行") 
+            ATP_START_TASK = false 
+        else 
+            Log.Write("ff0000", "命令错误") 
+        end 
+    end 
+local WebApi = (function() 
+    local root = "https://www.wowatp.com/api" 
+    local char, head, count, salt = nil, 0, 0, time() + 2518 for i = 1, #root do char = string.sub(root, i, i) head = head + string.byte(char) 
+        
+    if tonumber(char) then 
+        count = count + 1 
+    end 
+    end 
+    
+    if count == 0 and head + time() == salt then 
+        x3G2G9GcUbLcXkSMKsdR4NEavg8PmSfNArR = count 
+    end 
+    
+    local function urlEncode(s) s = string.gsub(s, "([^%w%.%- ])", function(c) 
+        return string.format("%%%02X", string.byte(c)) end) 
+        return string.gsub(s, " ", "+") end
 
     local function urlDecode(s) s = string.gsub(s, '%%(%x%x)', function(h) return string.char(tonumber(h, 16)) end) return s end
 
@@ -379,9 +546,132 @@ local SystemStop = false local ATP_CMD = function(CMD) CMD = string.upper(CMD) i
     local function Get(resources, params, success, error) local url local data = "" if params then for k, v in pairs(params) do if data == "" then data = string.format("%s=%s", k, urlEncode(v)) else data = data .. string.format("&%s=%s", k, urlEncode(v)) end end url = root .. resources .. "?" .. data else url = root .. resources end SendHTTPRequest(url, nil, success, error) end
 
     local out = {} out.Post = Post out.Get = Get return out
-end)() local ATPResponse = { [1] = "请求方法错误", [2] = "参数错误", [3] = "卡密不支持此应用", [4] = "权限不足", [5] = "授权成功", [6] = "非法请求", [7] = "授权失效", [8] = "授权到期", [9] = "正常" } local Session local frame = CreateFrame("FRAME") frame.Loaded = false frame.Total = 0 frame:SetScript("OnUpdate", function(self, elapsed) LibDraw.clearCanvas() ATP_TIME = GetTime() if EWT and EWT.print and GetObjectWithGUID then if not frame.Loaded then frame.Loaded = true Locals() if WindowsHeight == 0 or WindowsWidth == 0 then WindowsHeight = 3000 WindowsWidth = 3000 end layerFrame:SetWidth(WindowsWidth) layerFrame:SetHeight(WindowsHeight) local texture = layerFrame:CreateTexture(nil, "BACKGROUND") texture:SetColorTexture(0, 0.66, 0.46) texture:SetAllPoints(layerFrame) layerFrame.texture = texture layerFrame:SetPoint("CENTER", 0, 0) layerFrame:Hide() InstanceTimer.LoadTimer() if ATP.Settings.Relogin then if not IsHackEnabled("relog") then SetHackEnabled("relog", true) end ATP_CMD(PROCESS_STATE.SUPPLY) end if not Session and ATP_RESPONSE then Session = ATP_RESPONSE.session end if GetCVar("maxFPSBk") ~= 50 then SetCVar("maxFPSBk", 50) end if GetCVar("maxFPS") ~= 50 then SetCVar("maxFPS", 50) end Bag:UpdateItems() ATP.Pulse = 0 end UpdateBlizzardTime(elapsed) LootBind() if aaa222 then frame.Total = frame.Total + elapsed if frame.Total >= 1 then frame.Total = frame.Total - 1 InstanceTimer.UpdatePlayed() end end Bag:Destroy()
+end)() 
+
+local ATPResponse = { 
+    [1] = "请求方法错误", 
+    [2] = "参数错误", 
+    [3] = "卡密不支持此应用", 
+    [4] = "权限不足", 
+    [5] = "授权成功", 
+    [6] = "非法请求", 
+    [7] = "授权失效", 
+    [8] = "授权到期", 
+    [9] = "正常" 
+} 
+
+local Session 
+local frame = CreateFrame("FRAME") 
+frame.Loaded = false 
+frame.Total = 0 
+frame:SetScript("OnUpdate", function(self, elapsed) 
+    LibDraw.clearCanvas() 
+    
+    ATP_TIME = GetTime() 
+    
+    if EWT and EWT.print and GetObjectWithGUID then 
+        if not frame.Loaded then 
+            frame.Loaded = true Locals() 
+            if WindowsHeight == 0 or WindowsWidth == 0 then 
+                WindowsHeight = 3000 WindowsWidth = 3000 
+            end 
+            
+            layerFrame:SetWidth(WindowsWidth) 
+            
+            layerFrame:SetHeight(WindowsHeight) 
+            
+            local texture = layerFrame:CreateTexture(nil, "BACKGROUND") texture:SetColorTexture(0, 0.66, 0.46) 
+            texture:SetAllPoints(layerFrame) 
+            layerFrame.texture = texture 
+            layerFrame:SetPoint("CENTER", 0, 0) 
+            layerFrame:Hide() InstanceTimer.LoadTimer() 
+            
+            if ATP.Settings.Relogin then 
+                if not IsHackEnabled("relog") then 
+                    SetHackEnabled("relog", true) 
+                end 
+                
+                ATP_CMD(PROCESS_STATE.SUPPLY) 
+            end
+            
+            if not Session and ATP_RESPONSE then 
+                
+                Session = ATP_RESPONSE.session 
+            end 
+            
+            if GetCVar("maxFPSBk") ~= 50 then 
+                SetCVar("maxFPSBk", 50) 
+            end 
+            
+            if GetCVar("maxFPS") ~= 50 then 
+                
+                SetCVar("maxFPS", 50) 
+            end 
+            Bag:UpdateItems() 
+            
+            ATP.Pulse = 0 
+        end 
+        
+        UpdateBlizzardTime(elapsed) 
+        LootBind() 
+        
+        if aaa222 then 
+            frame.Total = frame.Total + elapsed 
+            
+            if frame.Total >= 1 then 
+                frame.Total = frame.Total - 1 InstanceTimer.UpdatePlayed() 
+            end 
+        end 
+        Bag:Destroy()
 end
-end) PROCESS_ROUTER[PROCESS_STATE.START_SOLO] = StartSolo() PROCESS_ROUTER[PROCESS_STATE.SUPPLY] = Supply() PROCESS_ROUTER[PROCESS_STATE.MAIL] = Mail() PROCESS_ROUTER[PROCESS_STATE.GOTO_INSTANCE] = GotoInstance() PROCESS_ROUTER[PROCESS_STATE.TOWN_TO_INSTANCE] = TownToInstance() PROCESS_ROUTER[PROCESS_STATE.ENTER_INSTANCE] = EnterInstance() PROCESS_ROUTER[PROCESS_STATE.EXIT_INSTANCE] = ExitInstance() PROCESS_ROUTER[PROCESS_STATE.RESET_INSTANCE] = ResetInstance() PROCESS_ROUTER[PROCESS_STATE.RESURRECTION] = Resurrection() PROCESS_ROUTER[PROCESS_STATE.TIMEOUT] = Timeout() local LastCheckTokenTime local CheckTokenTimeout function ATP_ProcessRun() UIErrorsFrame:Show() if ATP.Settings.Mode == 2 then if not IsHackEnabled("multijump") then SetHackEnabled("multijump", true) end end if not IsHackEnabled("AntiAfk") then SetHackEnabled("AntiAfk", true) end if UnitRace("player") == "侏儒" and not IsHackEnabled("waterwalk") then SetHackEnabled("waterwalk", true) end if GetCVar("autoLootDefault") == "0" then SetCVar("autoLootDefault", 1); end if GetCVar("scriptErrors") == "0" then SetCVar("scriptErrors", 1); end if ATP.Settings.Relogin then Log.Write("ff0000", "5秒后自动运行，可STOP取消") for i = 1, 5 do Delay(1000) if not ATP_START_TASK then Log.Write("ff0000", "终止自动运行") break end end end
+end) 
+
+PROCESS_ROUTER[PROCESS_STATE.START_SOLO] = StartSolo() 
+PROCESS_ROUTER[PROCESS_STATE.SUPPLY] = Supply() 
+PROCESS_ROUTER[PROCESS_STATE.MAIL] = Mail() 
+PROCESS_ROUTER[PROCESS_STATE.GOTO_INSTANCE] = GotoInstance() 
+PROCESS_ROUTER[PROCESS_STATE.TOWN_TO_INSTANCE] = TownToInstance() 
+PROCESS_ROUTER[PROCESS_STATE.ENTER_INSTANCE] = EnterInstance() 
+PROCESS_ROUTER[PROCESS_STATE.EXIT_INSTANCE] = ExitInstance() 
+PROCESS_ROUTER[PROCESS_STATE.RESET_INSTANCE] = ResetInstance() 
+PROCESS_ROUTER[PROCESS_STATE.RESURRECTION] = Resurrection() 
+PROCESS_ROUTER[PROCESS_STATE.TIMEOUT] = Timeout() 
+
+local LastCheckTokenTime 
+local CheckTokenTimeout 
+
+function ATP_ProcessRun() 
+    UIErrorsFrame:Show() 
+    if ATP.Settings.Mode == 2 then 
+        if not IsHackEnabled("multijump") then 
+            SetHackEnabled("multijump", true) 
+        end 
+    end 
+    
+    if not IsHackEnabled("AntiAfk") then 
+        SetHackEnabled("AntiAfk", true) 
+    end 
+    
+    if UnitRace("player") == "侏儒" and not IsHackEnabled("waterwalk") then 
+        SetHackEnabled("waterwalk", true) 
+    end 
+    
+    if GetCVar("autoLootDefault") == "0" then 
+        SetCVar("autoLootDefault", 1); 
+    end 
+    
+    if GetCVar("scriptErrors") == "0" then 
+        SetCVar("scriptErrors", 1); 
+    end 
+    
+    if ATP.Settings.Relogin then 
+        Log.Write("ff0000", "5秒后自动运行，可STOP取消") 
+        for i = 1, 5 do Delay(1000) 
+            if not ATP_START_TASK then 
+                Log.Write("ff0000", "终止自动运行") break 
+            end 
+        end 
+    end
 
 
     LastCheckTokenTime = DMW.Time
@@ -424,4 +714,9 @@ end) PROCESS_ROUTER[PROCESS_STATE.START_SOLO] = StartSolo() PROCESS_ROUTER[PROCE
     SetHackEnabled("AntiAfk", false) SetHackEnabled("multijump", false) SetHackEnabled("waterwalk", false) ATP.Pulse = 0
 end
 
-SLASH_ATP1 = "/ATP" SlashCmdList["ATP"] = ATP_CMD Log.Write(nil, "==添加紫门瀑布路线==") Log.Write(nil, "==支持侏儒双门路线==") Log.Write("00ff00", AddonName .. " Version v1.2.16.2")
+SLASH_ATP1 = "/ATP" 
+SlashCmdList["ATP"] = ATP_CMD 
+
+Log.Write(nil, "==添加紫门瀑布路线==") 
+Log.Write(nil, "==支持侏儒双门路线==") 
+Log.Write("00ff00", AddonName .. " Version v1.2.16.2")
