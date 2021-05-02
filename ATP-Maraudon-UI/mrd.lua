@@ -1542,15 +1542,64 @@ local function StartSolo()
         ["174-1"] = Position(671.965698, -224.711166, -59.559406),
         ["174-2"] = Position(669.021729, -210.713013, -60.673027),
         ["180-1"] = Position(721.701721, -333.673096, -51.580002),
-    } local POS_BLIZZARD_REGATHER = { ["7-1"] = Position(753.820374, -551.112976, -32.970665), ["7-2"] = Position(760.454895, -551.140869, -34.223179), ["13-1"] = Position(834.576050, -451.043549, -56.413685), ["15-1"] = Position(856.411865, -424.107178, -52.452629), ["24-1"] = Position(780.455505, -338.391052, -50.169155), ["24-2"] = Position(767.027893, -333.640259, -50.875973), } local FP_PREPARE = FixedPath({ { x = 754.98260498047, y = -607.84973144531, z = -33.007301330566, node = 0 }, { x = 784.30657958984, y = -595.28723144531, z = -33.033130645752, node = 1 }, { x = 796.74530029297, y = -584.06420898438, z = -32.7180519104, node = 2 }, { x = 793.15283203125, y = -577.3291015625, z = -32.864406585693, node = 3 }, { x = 781.54443359375, y = -551.11090087891, z = -32.44006729126, node = 4 }, { x = 784.33911132813, y = -539.35229492188, z = -34.503322601318, node = 5 }, }, 1.5, true) local FM_LURE = FixedNode({
-        { x = 794.645, y = -531.358, z = -46.886, func = CastBuff }, { x = 798.853, y = -519.546, z = -43.043, func = CastBuff }, { x = 802.010, y = -514.362, z = -41.605, func = CastBuff }, { x = 801.761, y = -507.132, z = -41.055, func = CastBuff }, { x = 796.498, y = -497.640, z = -39.947, func = CastBuff }, {
-            x = 782.652,
-            y = -491.672,
-            z = -40.085,
-            func = function(self) if self.CurOffset < 1.5 then self.Pause = true if PATROL_TARGET and not UnitAffectingCombat(PATROL_TARGET.Pointer) and ATP.IsInRegion(PATROL_TARGET.PosX, PATROL_TARGET.PosY, Areas[3]) and PATROL_TARGET.PosZ < -46 then print( "等待巡逻-2") Delay(2000) return true end if PATROL_TARGET and not UnitAffectingCombat(PATROL_TARGET.Pointer) and ATP.IsInRegion(PATROL_TARGET.PosX, PATROL_TARGET.PosY, Areas[5]) then if PATROL_TARGET.ReachDistance <= 35 and Spell.Frostbolt:IsReady(1) and FacingTarget(PATROL_TARGET) and Spell.Frostbolt:Cast(PATROL_TARGET, 1) then print( "释放寒冰箭术") Delay(550) while Player.Casting do Delay(100) end end Delay(2000) return true end if not PATROL_TARGET or UnitAffectingCombat(PATROL_TARGET.Pointer) or Player.Combat or (not ATP.IsInRegion(PATROL_TARGET.PosX, PATROL_TARGET.PosY, Areas[3]) and not ATP.IsInRegion(PATROL_TARGET.PosX, PATROL_TARGET.PosY, Areas[5])) then if APT_LAST_BLIZZARD_POSITION == nil and ATP_BLIZZARD_START == 0 then CastBlizzard(POS_BLIZZARD["6-1"], 1) end if APT_LAST_BLIZZARD_POSITION == POS_BLIZZARD["6-1"] and ATP_BLIZZARD_TIME > 1060 then CastBlizzard(POS_BLIZZARD["6-2"], 1) end if APT_LAST_BLIZZARD_POSITION == POS_BLIZZARD["6-2"] and ATP_BLIZZARD_TIME > 1060 then CastBlizzard(POS_BLIZZARD["6-3"], 1) end if APT_LAST_BLIZZARD_POSITION == POS_BLIZZARD["6-3"] and ATP_BLIZZARD_TIME > 1060 then self.Pause = false end end
+    } local POS_BLIZZARD_REGATHER = { ["7-1"] = Position(753.820374, -551.112976, -32.970665), ["7-2"] = Position(760.454895, -551.140869, -34.223179), ["13-1"] = Position(834.576050, -451.043549, -56.413685), ["15-1"] = Position(856.411865, -424.107178, -52.452629), ["24-1"] = Position(780.455505, -338.391052, -50.169155), ["24-2"] = Position(767.027893, -333.640259, -50.875973), } local FP_PREPARE = FixedPath({ { x = 754.98260498047, y = -607.84973144531, z = -33.007301330566, node = 0 }, { x = 784.30657958984, y = -595.28723144531, z = -33.033130645752, node = 1 }, { x = 796.74530029297, y = -584.06420898438, z = -32.7180519104, node = 2 }, { x = 793.15283203125, y = -577.3291015625, z = -32.864406585693, node = 3 }, { x = 781.54443359375, y = -551.11090087891, z = -32.44006729126, node = 4 }, { x = 784.33911132813, y = -539.35229492188, z = -34.503322601318, node = 5 }, }, 1.5, true) 
+    
+    local FM_LURE = FixedNode({
+        { x = 794.645, y = -531.358, z = -46.886, func = CastBuff }, 
+        { x = 798.853, y = -519.546, z = -43.043, func = CastBuff }, 
+        { x = 802.010, y = -514.362, z = -41.605, func = CastBuff }, 
+        { x = 801.761, y = -507.132, z = -41.055, func = CastBuff }, 
+        { x = 796.498, y = -497.640, z = -39.947, func = CastBuff }, 
+        { x = 782.652, y = -491.672, z = -40.085,
+            func = function(self) 
+                if self.CurOffset < 1.5 then 
+                    self.Pause = true 
+                    
+                    if PATROL_TARGET and not UnitAffectingCombat(PATROL_TARGET.Pointer) and ATP.IsInRegion(PATROL_TARGET.PosX, PATROL_TARGET.PosY, Areas[3]) and PATROL_TARGET.PosZ < -46 then 
+                        
+                        print( "等待巡逻-2") 
+                        Delay(2000) 
+                        return true 
+                    end 
+                    
+                    if PATROL_TARGET and not UnitAffectingCombat(PATROL_TARGET.Pointer) and ATP.IsInRegion(PATROL_TARGET.PosX, PATROL_TARGET.PosY, Areas[5]) then 
+                        if PATROL_TARGET.ReachDistance <= 35 and Spell.Frostbolt:IsReady(1) and FacingTarget(PATROL_TARGET) and Spell.Frostbolt:Cast(PATROL_TARGET, 1) then 
+                            print( "释放寒冰箭术") 
+                            Delay(550) 
+                            
+                            while Player.Casting do 
+                                Delay(100) 
+                            end 
+                        end 
+                        Delay(2000) 
+                        return true 
+                    end 
+                    
+                    if not PATROL_TARGET or UnitAffectingCombat(PATROL_TARGET.Pointer) or Player.Combat or (not ATP.IsInRegion(PATROL_TARGET.PosX, PATROL_TARGET.PosY, Areas[3]) and not ATP.IsInRegion(PATROL_TARGET.PosX, PATROL_TARGET.PosY, Areas[5])) then 
+                        
+                        if APT_LAST_BLIZZARD_POSITION == nil and ATP_BLIZZARD_START == 0 then 
+                            CastBlizzard(POS_BLIZZARD["6-1"], 1) 
+                        end 
+                            
+                        if APT_LAST_BLIZZARD_POSITION == POS_BLIZZARD["6-1"] and ATP_BLIZZARD_TIME > 1060 then 
+                            CastBlizzard(POS_BLIZZARD["6-2"], 1) 
+                        end 
+                        
+                        if APT_LAST_BLIZZARD_POSITION == POS_BLIZZARD["6-2"] and ATP_BLIZZARD_TIME > 1060 then 
+                            CastBlizzard(POS_BLIZZARD["6-3"], 1) 
+                        end 
+                        
+                        if APT_LAST_BLIZZARD_POSITION == POS_BLIZZARD["6-3"] and ATP_BLIZZARD_TIME > 1060 then 
+                            self.Pause = false 
+                        end end
             end
             end
-        }, { x = 766.102, y = -472.536, z = -40.957, func = Patrol }, { x = 758.209, y = -471.141, z = -39.899, func = function(self) if self.CurOffset < 1.5 then if Spell.FrostNova:IsReady() and Spell.FrostNova:Cast(Player, 1) then print( "释放冰环") end end end }, { x = 743.562, y = -472.709, z = -39.055, func = Patrol }, { x = 733.957, y = -485.623, z = -41.135, func = function(self) Patrol() if self.CurOffset < 1.5 then if Spell.Blink:IsReady() then FaceDirection(733.953, -511.494, true) if Spell.Blink:Cast(Player) then print( "释放闪现") return true end end end end }, { x = 739.193, y = -522.227, z = -39.571, r = 1, func = function(self) Patrol() if self.CurOffset < 1.5 and Spell.Counterspell:IsReady() and SearchTarget(717.124, -502.128, -36.591, 10, 30) then if Spell.Counterspell:Cast(Target) then Debug("反制") end end end }, { x = 746.891, y = -533.922, z = -33.820, func = Patrol }, { x = 754.024, y = -541.319, z = -32.348, func = Patrol }, { x = 778.918, y = -535.783, z = -36.608, func = function(self) if self.CurOffset < 1.5 then self.Pause = true if Player.Combat then if APT_LAST_BLIZZARD_POSITION == POS_BLIZZARD["6-3"] and ATP_BLIZZARD_START == 0 then CastBlizzard(POS_BLIZZARD["14-1"], 1) end if APT_LAST_BLIZZARD_POSITION == POS_BLIZZARD["14-1"] and ATP_BLIZZARD_START == 0 then CastBlizzard(POS_BLIZZARD["14-2"], 1) end if APT_LAST_BLIZZARD_POSITION == POS_BLIZZARD["14-2"] and (ATP_BLIZZARD_START == 0 or NearPlayer(5) > 1) then self.Pause = false end else ChangeProcess(PROCESS_STATE.EXIT_INSTANCE) end end end }, { x = 783.626, y = -520.195, z = -52.731, func = nil }, { x = 786.078, y = -516.707, z = -52.812, func = function(self) if self.CurOffset < 1.5 then if Spell.Blink:IsReady() then FaceDirection(800.335, -498.072, true) if Spell.Blink:Cast(Player) then print( "释放闪现") end end end end }, { x = 800.335, y = -498.072, z = -53.614, func = CastBuff }, { x = 810.796, y = -480.668, z = -54.825, func = CastBuff }, { x = 820.116, y = -454.971, z = -56.304, func = CastBuff }, { x = 820.353, y = -432.901, z = -55.776, func = CastBuff }, { x = 810.965, y = -429.808, z = -54.250, func = CastBuff }, { x = 805.994, y = -427.089, z = -53.596, func = CastBuff }, { x = 802.770, y = -422.923, z = -53.525, func = CastBuff }, { x = 802.409, y = -418.899, z = -53.615, func = CastBuff }, { x = 805.013, y = -414.710, z = -54.283, func = CastBuff }, { x = 817.520, y = -402.037, z = -57.734, func = CastBuff }, { x = 825.427, y = -390.755, z = -59.103, r = 1, func = function(self) if self.CurOffset < 1.5 then self.Pause = true if not Player.Moving then if SearchTarget(856.386, -386.619, -64.126, 15, 36) then FaceDirection(Target.Pointer, true) if Spell.Frostbolt:IsReady(1) and Spell.Frostbolt:Cast(Target, 1) then Debug("寒冰箭") end Delay(800) while Player.Casting do Delay(50) end end self.Pause = false end end end }, { x = 803.565, y = -389.473, z = -59.047, func = CastBuff }, { x = 787.896, y = -379.052, z = -59.096, r = 1, func = function(self) if self.CurOffset < 1.5 then self.Pause = true if not Player.Moving then if SearchTarget(771.665, -353.206, -61.652, 15, 36) then FaceDirection(Target.Pointer, true) if Spell.Frostbolt:IsReady(1) and Spell.Frostbolt:Cast(Target, 1) then Debug("寒冰箭") end Delay(800) while Player.Casting do Delay(50) end end Delay(500) if Spell.ArcaneExplosion:IsReady(1) and Spell.ArcaneExplosion:Cast(Player, 1) then Debug("魔爆术") end self.Pause = false end end end }, { x = 808.757, y = -382.665, z = -59.091, func = function(self) if self.CurOffset < 1.5 and Spell.ArcaneExplosion:IsReady(1) and Spell.ArcaneExplosion:Cast(Player, 1) then Debug("魔爆术") end end }, { x = 804.910, y = -394.939, z = -58.912, func = function(self) if self.CurOffset < 1.5 and Spell.Blink:IsReady() then FaceDirection(799.283, -423.404, true) if Spell.Blink:Cast(Player) then Debug("闪现") end end end }, { x = 799.283, y = -423.404, z = -53.548, func = nil }, { x = 802.120, y = -428.099, z = -53.807, r = 1, func = function(self) if self.CurOffset < 1.5 then if Spell.FrostNova:IsReady() and Spell.FrostNova:Cast(Player, 1) then Debug("冰霜新星") end end end }, { x = 827.055, y = -438.522, z = -56.249, r = 1, func = function(self) if self.CurOffset < 1.5 and SearchTarget(830.135, -446.087, -56.281, 10, 30) and Spell.ConeOfCold:IsReady() then FaceDirection(Target.Pointer, true) if Spell.ConeOfCold:Cast(Player, 1) then FaceDirection(844.542, -433.823, true) Debug("冰锥术") end end end }, { x = 834.130, y = -438.018, z = -55.994, r = 1, func = CastBuff }, { x = 839.327, y = -435.642, z = -56.059, r = 1, func = CastBuff }, { x = 873.265, y = -400.039, z = -51.747, r = 1, func = CastBuff }, { x = 890.133850, y = -379.689331, z = -52.028820, r = 1, func = function(self) if self.CurOffset < 1.5 and Spell.Counterspell:IsReady() and SearchTarget(897.796, -406.071, -52.944, 10, 30) then if Spell.Counterspell:Cast(Target) then Debug("反制") end end end }, { x = 874.263062, y = -333.994781, z = -50.126431, r = 1, func = function(self) if self.CurOffset < 1.5 and Spell.Blink:IsReady() then Delay(500) FaceDirection(819.415, -344.001, true) if Spell.Blink:Cast(Player) then Debug("闪现") end end end }, { x = 819.415, y = -344.001, z = -51.617, func = CastBuff }, { x = 801.624695, y = -351.283447, z = -51.587639, func = CastBuff }, { x = 782.624, y = -339.134, z = -50.241, func = function(self) if self.CurOffset < 1.5 and Spell.ArcaneExplosion:IsReady(1) and Spell.ArcaneExplosion:Cast(Player, 1) then Debug("魔爆术") end end }, { x = 765.812, y = -331.620, z = -51.109, func = function(self) if self.CurOffset < 1.5 and Spell.ArcaneExplosion:IsReady(1) and Spell.ArcaneExplosion:Cast(Player, 1) then Debug("魔爆术") end end }, { x = 743.795, y = -333.318, z = -50.641, func = function(self) if self.CurOffset < 1.5 then if Spell.Blink:IsReady() then FaceDirection(701.530640, -319.124603, true) if Spell.Blink:Cast(Player) then Debug("闪现") end end end end }, { x = 701.530640, y = -319.124603, z = -51.886127, func = function(self) if Item.ManaCitrine:IsReady() and Item.ManaCitrine:InBag() and Item.ManaCitrine:Use() then Debug("使用法力黄水晶") end end }, { x = 687.883, y = -318.707, z = -52.019, func = CastBuff }, { x = 673.812, y = -323.439, z = -52.112, func = CastBuff }, { x = 661.925964, y = -324.234314, z = -52.020039, func = function(self) if self.CurOffset < 1.5 and Spell.FireBlast:IsReady(1) and SearchTarget(674.105, -344.019, -51.633, 10, 20) then FaceDirection(Target.Pointer) if Spell.FireBlast:Cast(Target, 1) then FaceDirection(655.017, -318.181) Debug("火焰冲击") end end end }, { x = 655.017, y = -318.181, z = -52.019, func = CastBuff }, { x = 647.989563, y = -310.049011, z = -52.023022, func = function(self) if self.CurOffset < 1.5 and Spell.ConeOfCold:IsReady() then FaceDirection(3.58838, true) if Spell.ConeOfCold:Cast(Player, 1) then FaceDirection(645.705, -286.834, true) Debug("冰锥术") end end end }, { x = 645.705, y = -286.834, z = -52.519, func = CastBuff }, { x = 646.015, y = -274.568, z = -52.990, func = CastBuff }, { x = 650.074, y = -268.600, z = -53.110, func = CastBuff }, { x = 655.606, y = -257.404, z = -53.198, func = function(self) if self.CurOffset < 3 then if Spell.FireBlast:IsReady(1) and SearchTarget(628.727, -261.367, -53.353, 8, 20) then FaceDirection(Target.Pointer, true) if Spell.FireBlast:Cast(Target, 1) then FaceDirection(657.829, -246.429, true) Debug("火焰冲击") end end end end }, { x = 657.829, y = -246.429, z = -64.391 }, { x = 658.797913, y = -237.536987, z = -64.391083, r = 1, func = function(self) if self.CurOffset < 1.5 and Spell.Blink:IsReady() then FaceDirection(661.446, -211.615, true) if Spell.Blink:Cast(Player) then Debug("闪现") end end end }, { x = 661.446, y = -211.615, z = -60.952, func = CastBuff }, { x = 671.849609, y = -208.588257, z = -60.936592, func = CastBuff }, { x = 675.769165, y = -220.799103, z = -60.253593, r = 1, func = function(self) if self.CurOffset < 1.5 then self.Pause = true if not Player.Moving then if NearPosition(POS_BLIZZARD["59-1"], 5, true) > 3 then if Spell.FireBlast:IsReady(1) and SearchTarget(657.331, -228.034, -64.391, 15, 20) then FaceDirection(Target.Pointer, true) if Spell.FireBlast:Cast(Target, 1) then FaceDirection(688.936, -257.890, true) Debug("火焰冲击") end end Delay(500) if Spell.Counterspell:IsReady() and SearchTarget(686.322, -196.200, -60.515, 15, 30, true) then if Spell.Counterspell:Cast(Target) then Debug("反制") end end self.Pause = false end end end end }, { x = 688.936, y = -257.890, z = -53.062, func = function(self) if self.CurOffset < 1.5 and SearchTarget(692.116, -265.452, -52.898, 15, 15) and Spell.ConeOfCold:IsReady() then FaceDirection(Target.Pointer, true) if Spell.ConeOfCold:Cast(Player, 1) then FaceDirection(694.131, -252.028, true) Debug("冰锥术") end end end }, { x = 710.729, y = -231.757, z = -47.442, func = CastBuff }, { x = 714.752686, y = -218.324432, z = -47.250694, func = function(self) if self.CurOffset < 1.5 and Spell.ArcaneExplosion:IsReady(1) and Spell.ArcaneExplosion:Cast(Player, 1) then Debug("魔爆术") end end }, { x = 707.492615, y = -208.661697, z = -47.251263, func = function(self) if self.CurOffset < 1.5 then if Spell.FrostNova:IsReady() and Spell.FrostNova:Cast(Player, 1) then Debug("冰霜新星") end end end }, { x = 697.841309, y = -199.340714, z = -47.250977, desc = '闪现', func = function(self) if self.CurOffset < 1.5 and Spell.Blink:IsReady() then FaceDirection(687.045, -177.829, true) if Spell.Blink:Cast(Player) then Debug("闪现") end end end }, { x = 687.045, y = -177.829, z = -48.720, func = CastBuff }, { x = 675.546, y = -164.205, z = -48.790, desc = '魔爆术', func = function(self) if self.CurOffset < 1.5 and Spell.ArcaneExplosion:IsReady(1) and Spell.ArcaneExplosion:Cast(Player, 1) then Debug("魔爆术") end end }, { x = 662.522, y = -165.818, z = -50.944, desc = '魔爆术', func = function(self) if self.CurOffset < 1.5 and Spell.ArcaneExplosion:IsReady(1) and Spell.ArcaneExplosion:Cast(Player, 1) then Debug("魔爆术") end end }, { x = 640.122253, y = -174.106659, z = -53.607258, desc = '魔爆术', func = function(self) if self.CurOffset < 1.5 and Spell.ArcaneExplosion:IsReady(1) and Spell.ArcaneExplosion:Cast(Player, 1) then Debug("魔爆术") end end }, { x = 637.722107, y = -182.460876, z = -53.483288, r = 1, func = function(self) if self.CurOffset < 1.5 then JumpOrAscendStart() Delay(20) AscendStop() end end }, { x = 626.819458, y = -216.720566, z = -63.270630, r = 1, func = CastBuff }, { x = 622.775330, y = -241.142532, z = -54.467468, r = 1, func = function(self) if self.CurOffset < 1.5 then self.Pause = true if not Player.Moving then if SearchTarget(615.679, -204.636, -64.536, 10, 36) then FaceDirection(Target.Pointer, true) if Spell.Frostbolt:IsReady(1) and Spell.Frostbolt:Cast(Target, 1) then Debug("寒冰箭") end Delay(500) while Player.Casting do Delay(50) end end self.Pause = false end end end }, { x = 627.201172, y = -282.881592, z = -53.141193, r = 1, func = function(self) if Spell.Blink:IsReady() then FaceDirection(640.108, -317.193, true) if Spell.Blink:Cast(Player) then Debug("闪现") end end end }, { x = 640.108, y = -317.193, z = -52.095, func = CastBuff }, { x = 641.349, y = -325.579, z = -52.034, func = CastBuff }, { x = 642.182, y = -336.184, z = -52.019, func = CastBuff }, { x = 637.410, y = -339.974, z = -52.019, func = CastBuff }, { x = 622.362, y = -359.445, z = -52.019, func = CastBuff }, { x = 613.337, y = -366.975, z = -52.018, r = 1, func = function(self) if self.CurOffset < 1.5 then self.Pause = true if not Player.Moving then CastBlizzard(POS_BLIZZARD["78-1"], 1) Delay(1600 - ATP_BLIZZARD_TIME) CastBlizzard(POS_BLIZZARD["78-2"], 1) Delay(1200 - ATP_BLIZZARD_TIME) self.Pause = false end end end }, { x = 623.973, y = -355.896, z = -52.019, func = function(self) if self.CurOffset < 1.5 and Spell.ArcaneExplosion:IsReady(1) and Spell.ArcaneExplosion:Cast(Player, 1) then Debug("魔爆术") end end }, { x = 644.986206, y = -358.945007, z = -52.019264, func = function(self) if self.CurOffset < 1.5 then if Spell.FrostNova:IsReady() and Spell.FrostNova:Cast(Player, 1) then Debug("冰霜新星") end end end }, { x = 658.221558, y = -361.874725, z = -52.019314, func = CastBuff }, { x = 703.540405, y = -372.268494, z = -52.019268, func = function(self) if self.CurOffset < 1.5 and Spell.Blink:IsReady() then FaceDirection(712.498657, -351.085968, true) if Spell.Blink:Cast(Player) then Debug("闪现") end end end }, { x = 712.498657, y = -351.085968, z = -51.965038, func = function(self) end }, { x = 725.503662, y = -337.407562, z = -50.873936, func = CastBuff }, { x = 738.538574, y = -342.697540, z = -50.806553, func = CastBuff }, { x = 754.983093, y = -350.542236, z = -50.662857, func = function(self) if self.CurOffset < 1.5 then self.Pause = true if not Player.Moving then if ATP_BLIZZARD_START == 0 and APT_LAST_BLIZZARD_POSITION ~= POS_BLIZZARD["86-1"] then CastBlizzard(POS_BLIZZARD["86-1"], 1) end if ATP_BLIZZARD_START == 0 or ATP_BLIZZARD_TIME > 3100 or NearPlayer(5) > 1 then if Spell.ArcaneExplosion:IsReady(1) and Spell.ArcaneExplosion:Cast(Player, 1) then Debug("魔爆术") end self.Pause = false end end end end }, { x = 765.284, y = -353.156, z = -61.386, func = function(self) if self.CurOffset < 1.5 then self.Pause = true if not Player.Moving then if NearPosition(POS_BLIZZARD["87-1"], 13) > 0 then if ATP_BLIZZARD_START == 0 and APT_LAST_BLIZZARD_POSITION ~= POS_BLIZZARD["87-1"] then CastBlizzard(POS_BLIZZARD["87-1"], 1) end end if APT_LAST_BLIZZARD_POSITION == POS_BLIZZARD["87-1"] and (ATP_BLIZZARD_START == 0 or ATP_BLIZZARD_TIME > 4060) then self.Pause = false end end end end }, { x = 783.151, y = -368.847, z = -59.810, func = function(self) if self.CurOffset < 1.5 and Spell.Blink:IsReady() then FaceDirection(800.150, -403.169, true) if Spell.Blink:Cast(Player) then Debug("闪现") end end end }, { x = 800.150, y = -403.169, z = -58.253, func = function(self) if not Buff.MageArmor:Exist() and not Spell.MageArmor:LastCast() and Spell.MageArmor:IsReady() and Spell.MageArmor:Cast(Player) then Debug("释放魔甲术") end end }, { x = 803.105, y = -423.044, z = -53.540, func = nil }, { x = 818.074, y = -450.292, z = -56.276, func = nil }, { x = 820.290, y = -456.885, z = -56.289, func = nil }, { x = 806.466, y = -490.028, z = -54.335, func = function(self) if Item.ManaRuby:IsReady() and Item.ManaRuby:InBag() and Item.ManaRuby:Use() then Debug("使用法力红宝石") end end }, { x = 779.317, y = -516.969, z = -52.584, func = function(self) if Spell.Blink:IsReady() then FaceDirection(777.564, -520.082, true) if Spell.Blink:Cast(Player) then Debug("闪现") end end end }, { x = 777.564, y = -520.082, z = -52.128, func = function(self) if self.CurOffset < 1.5 then if Buff.IceBarrier:Remain() < 50 and Spell.IceBarrier:IsReady() and Spell.IceBarrier:Cast() then Debug("寒冰护体") end end end }, { x = 782.163, y = -525.035, z = -49.489, func = nil }, { x = 789.671, y = -525.863, z = -47.396, func = function(self) if self.CurOffset < 1.5 and Spell.Blink:IsReady() then FaceDirection(806.001465, -514.490540, true) if Spell.Blink:Cast(Player) then Debug("闪现") end end end }, { x = 806.001465, y = -514.490540, z = -41.474762, func = CastBuff }, { x = 802.520, y = -507.210, z = -40.931, func = CastBuff }, { x = 795.788391, y = -494.081482, z = -39.892342, func = function(self) if self.CurOffset < 1.5 then if Buff.ManaShield:Remain() < 40 and Spell.ManaShield:IsReady() and Spell.ManaShield:Cast() then Debug("法力盾") end end end },
+        }, 
+        { x = 766.102, y = -472.536, z = -40.957, func = Patrol }, 
+        { x = 758.209, y = -471.141, z = -39.899, 
+        func = function(self) 
+            if self.CurOffset < 1.5 then 
+                if Spell.FrostNova:IsReady() and Spell.FrostNova:Cast(Player, 1) then print( "释放冰环") end end end }, { x = 743.562, y = -472.709, z = -39.055, func = Patrol }, { x = 733.957, y = -485.623, z = -41.135, func = function(self) Patrol() if self.CurOffset < 1.5 then if Spell.Blink:IsReady() then FaceDirection(733.953, -511.494, true) if Spell.Blink:Cast(Player) then print( "释放闪现") return true end end end end }, { x = 739.193, y = -522.227, z = -39.571, r = 1, func = function(self) Patrol() if self.CurOffset < 1.5 and Spell.Counterspell:IsReady() and SearchTarget(717.124, -502.128, -36.591, 10, 30) then if Spell.Counterspell:Cast(Target) then Debug("反制") end end end }, { x = 746.891, y = -533.922, z = -33.820, func = Patrol }, { x = 754.024, y = -541.319, z = -32.348, func = Patrol }, { x = 778.918, y = -535.783, z = -36.608, func = function(self) if self.CurOffset < 1.5 then self.Pause = true if Player.Combat then if APT_LAST_BLIZZARD_POSITION == POS_BLIZZARD["6-3"] and ATP_BLIZZARD_START == 0 then CastBlizzard(POS_BLIZZARD["14-1"], 1) end if APT_LAST_BLIZZARD_POSITION == POS_BLIZZARD["14-1"] and ATP_BLIZZARD_START == 0 then CastBlizzard(POS_BLIZZARD["14-2"], 1) end if APT_LAST_BLIZZARD_POSITION == POS_BLIZZARD["14-2"] and (ATP_BLIZZARD_START == 0 or NearPlayer(5) > 1) then self.Pause = false end else ChangeProcess(PROCESS_STATE.EXIT_INSTANCE) end end end }, { x = 783.626, y = -520.195, z = -52.731, func = nil }, { x = 786.078, y = -516.707, z = -52.812, func = function(self) if self.CurOffset < 1.5 then if Spell.Blink:IsReady() then FaceDirection(800.335, -498.072, true) if Spell.Blink:Cast(Player) then print( "释放闪现") end end end end }, { x = 800.335, y = -498.072, z = -53.614, func = CastBuff }, { x = 810.796, y = -480.668, z = -54.825, func = CastBuff }, { x = 820.116, y = -454.971, z = -56.304, func = CastBuff }, { x = 820.353, y = -432.901, z = -55.776, func = CastBuff }, { x = 810.965, y = -429.808, z = -54.250, func = CastBuff }, { x = 805.994, y = -427.089, z = -53.596, func = CastBuff }, { x = 802.770, y = -422.923, z = -53.525, func = CastBuff }, { x = 802.409, y = -418.899, z = -53.615, func = CastBuff }, { x = 805.013, y = -414.710, z = -54.283, func = CastBuff }, { x = 817.520, y = -402.037, z = -57.734, func = CastBuff }, { x = 825.427, y = -390.755, z = -59.103, r = 1, func = function(self) if self.CurOffset < 1.5 then self.Pause = true if not Player.Moving then if SearchTarget(856.386, -386.619, -64.126, 15, 36) then FaceDirection(Target.Pointer, true) if Spell.Frostbolt:IsReady(1) and Spell.Frostbolt:Cast(Target, 1) then Debug("寒冰箭") end Delay(800) while Player.Casting do Delay(50) end end self.Pause = false end end end }, { x = 803.565, y = -389.473, z = -59.047, func = CastBuff }, { x = 787.896, y = -379.052, z = -59.096, r = 1, func = function(self) if self.CurOffset < 1.5 then self.Pause = true if not Player.Moving then if SearchTarget(771.665, -353.206, -61.652, 15, 36) then FaceDirection(Target.Pointer, true) if Spell.Frostbolt:IsReady(1) and Spell.Frostbolt:Cast(Target, 1) then Debug("寒冰箭") end Delay(800) while Player.Casting do Delay(50) end end Delay(500) if Spell.ArcaneExplosion:IsReady(1) and Spell.ArcaneExplosion:Cast(Player, 1) then Debug("魔爆术") end self.Pause = false end end end }, { x = 808.757, y = -382.665, z = -59.091, func = function(self) if self.CurOffset < 1.5 and Spell.ArcaneExplosion:IsReady(1) and Spell.ArcaneExplosion:Cast(Player, 1) then Debug("魔爆术") end end }, { x = 804.910, y = -394.939, z = -58.912, func = function(self) if self.CurOffset < 1.5 and Spell.Blink:IsReady() then FaceDirection(799.283, -423.404, true) if Spell.Blink:Cast(Player) then Debug("闪现") end end end }, { x = 799.283, y = -423.404, z = -53.548, func = nil }, { x = 802.120, y = -428.099, z = -53.807, r = 1, func = function(self) if self.CurOffset < 1.5 then if Spell.FrostNova:IsReady() and Spell.FrostNova:Cast(Player, 1) then Debug("冰霜新星") end end end }, { x = 827.055, y = -438.522, z = -56.249, r = 1, func = function(self) if self.CurOffset < 1.5 and SearchTarget(830.135, -446.087, -56.281, 10, 30) and Spell.ConeOfCold:IsReady() then FaceDirection(Target.Pointer, true) if Spell.ConeOfCold:Cast(Player, 1) then FaceDirection(844.542, -433.823, true) Debug("冰锥术") end end end }, { x = 834.130, y = -438.018, z = -55.994, r = 1, func = CastBuff }, { x = 839.327, y = -435.642, z = -56.059, r = 1, func = CastBuff }, { x = 873.265, y = -400.039, z = -51.747, r = 1, func = CastBuff }, { x = 890.133850, y = -379.689331, z = -52.028820, r = 1, func = function(self) if self.CurOffset < 1.5 and Spell.Counterspell:IsReady() and SearchTarget(897.796, -406.071, -52.944, 10, 30) then if Spell.Counterspell:Cast(Target) then Debug("反制") end end end }, { x = 874.263062, y = -333.994781, z = -50.126431, r = 1, func = function(self) if self.CurOffset < 1.5 and Spell.Blink:IsReady() then Delay(500) FaceDirection(819.415, -344.001, true) if Spell.Blink:Cast(Player) then Debug("闪现") end end end }, { x = 819.415, y = -344.001, z = -51.617, func = CastBuff }, { x = 801.624695, y = -351.283447, z = -51.587639, func = CastBuff }, { x = 782.624, y = -339.134, z = -50.241, func = function(self) if self.CurOffset < 1.5 and Spell.ArcaneExplosion:IsReady(1) and Spell.ArcaneExplosion:Cast(Player, 1) then Debug("魔爆术") end end }, { x = 765.812, y = -331.620, z = -51.109, func = function(self) if self.CurOffset < 1.5 and Spell.ArcaneExplosion:IsReady(1) and Spell.ArcaneExplosion:Cast(Player, 1) then Debug("魔爆术") end end }, { x = 743.795, y = -333.318, z = -50.641, func = function(self) if self.CurOffset < 1.5 then if Spell.Blink:IsReady() then FaceDirection(701.530640, -319.124603, true) if Spell.Blink:Cast(Player) then Debug("闪现") end end end end }, { x = 701.530640, y = -319.124603, z = -51.886127, func = function(self) if Item.ManaCitrine:IsReady() and Item.ManaCitrine:InBag() and Item.ManaCitrine:Use() then Debug("使用法力黄水晶") end end }, { x = 687.883, y = -318.707, z = -52.019, func = CastBuff }, { x = 673.812, y = -323.439, z = -52.112, func = CastBuff }, { x = 661.925964, y = -324.234314, z = -52.020039, func = function(self) if self.CurOffset < 1.5 and Spell.FireBlast:IsReady(1) and SearchTarget(674.105, -344.019, -51.633, 10, 20) then FaceDirection(Target.Pointer) if Spell.FireBlast:Cast(Target, 1) then FaceDirection(655.017, -318.181) Debug("火焰冲击") end end end }, { x = 655.017, y = -318.181, z = -52.019, func = CastBuff }, { x = 647.989563, y = -310.049011, z = -52.023022, func = function(self) if self.CurOffset < 1.5 and Spell.ConeOfCold:IsReady() then FaceDirection(3.58838, true) if Spell.ConeOfCold:Cast(Player, 1) then FaceDirection(645.705, -286.834, true) Debug("冰锥术") end end end }, { x = 645.705, y = -286.834, z = -52.519, func = CastBuff }, { x = 646.015, y = -274.568, z = -52.990, func = CastBuff }, { x = 650.074, y = -268.600, z = -53.110, func = CastBuff }, { x = 655.606, y = -257.404, z = -53.198, func = function(self) if self.CurOffset < 3 then if Spell.FireBlast:IsReady(1) and SearchTarget(628.727, -261.367, -53.353, 8, 20) then FaceDirection(Target.Pointer, true) if Spell.FireBlast:Cast(Target, 1) then FaceDirection(657.829, -246.429, true) Debug("火焰冲击") end end end end }, { x = 657.829, y = -246.429, z = -64.391 }, { x = 658.797913, y = -237.536987, z = -64.391083, r = 1, func = function(self) if self.CurOffset < 1.5 and Spell.Blink:IsReady() then FaceDirection(661.446, -211.615, true) if Spell.Blink:Cast(Player) then Debug("闪现") end end end }, { x = 661.446, y = -211.615, z = -60.952, func = CastBuff }, { x = 671.849609, y = -208.588257, z = -60.936592, func = CastBuff }, { x = 675.769165, y = -220.799103, z = -60.253593, r = 1, func = function(self) if self.CurOffset < 1.5 then self.Pause = true if not Player.Moving then if NearPosition(POS_BLIZZARD["59-1"], 5, true) > 3 then if Spell.FireBlast:IsReady(1) and SearchTarget(657.331, -228.034, -64.391, 15, 20) then FaceDirection(Target.Pointer, true) if Spell.FireBlast:Cast(Target, 1) then FaceDirection(688.936, -257.890, true) Debug("火焰冲击") end end Delay(500) if Spell.Counterspell:IsReady() and SearchTarget(686.322, -196.200, -60.515, 15, 30, true) then if Spell.Counterspell:Cast(Target) then Debug("反制") end end self.Pause = false end end end end }, { x = 688.936, y = -257.890, z = -53.062, func = function(self) if self.CurOffset < 1.5 and SearchTarget(692.116, -265.452, -52.898, 15, 15) and Spell.ConeOfCold:IsReady() then FaceDirection(Target.Pointer, true) if Spell.ConeOfCold:Cast(Player, 1) then FaceDirection(694.131, -252.028, true) Debug("冰锥术") end end end }, { x = 710.729, y = -231.757, z = -47.442, func = CastBuff }, { x = 714.752686, y = -218.324432, z = -47.250694, func = function(self) if self.CurOffset < 1.5 and Spell.ArcaneExplosion:IsReady(1) and Spell.ArcaneExplosion:Cast(Player, 1) then Debug("魔爆术") end end }, { x = 707.492615, y = -208.661697, z = -47.251263, func = function(self) if self.CurOffset < 1.5 then if Spell.FrostNova:IsReady() and Spell.FrostNova:Cast(Player, 1) then Debug("冰霜新星") end end end }, { x = 697.841309, y = -199.340714, z = -47.250977, desc = '闪现', func = function(self) if self.CurOffset < 1.5 and Spell.Blink:IsReady() then FaceDirection(687.045, -177.829, true) if Spell.Blink:Cast(Player) then Debug("闪现") end end end }, { x = 687.045, y = -177.829, z = -48.720, func = CastBuff }, { x = 675.546, y = -164.205, z = -48.790, desc = '魔爆术', func = function(self) if self.CurOffset < 1.5 and Spell.ArcaneExplosion:IsReady(1) and Spell.ArcaneExplosion:Cast(Player, 1) then Debug("魔爆术") end end }, { x = 662.522, y = -165.818, z = -50.944, desc = '魔爆术', func = function(self) if self.CurOffset < 1.5 and Spell.ArcaneExplosion:IsReady(1) and Spell.ArcaneExplosion:Cast(Player, 1) then Debug("魔爆术") end end }, { x = 640.122253, y = -174.106659, z = -53.607258, desc = '魔爆术', func = function(self) if self.CurOffset < 1.5 and Spell.ArcaneExplosion:IsReady(1) and Spell.ArcaneExplosion:Cast(Player, 1) then Debug("魔爆术") end end }, { x = 637.722107, y = -182.460876, z = -53.483288, r = 1, func = function(self) if self.CurOffset < 1.5 then JumpOrAscendStart() Delay(20) AscendStop() end end }, { x = 626.819458, y = -216.720566, z = -63.270630, r = 1, func = CastBuff }, { x = 622.775330, y = -241.142532, z = -54.467468, r = 1, func = function(self) if self.CurOffset < 1.5 then self.Pause = true if not Player.Moving then if SearchTarget(615.679, -204.636, -64.536, 10, 36) then FaceDirection(Target.Pointer, true) if Spell.Frostbolt:IsReady(1) and Spell.Frostbolt:Cast(Target, 1) then Debug("寒冰箭") end Delay(500) while Player.Casting do Delay(50) end end self.Pause = false end end end }, { x = 627.201172, y = -282.881592, z = -53.141193, r = 1, func = function(self) if Spell.Blink:IsReady() then FaceDirection(640.108, -317.193, true) if Spell.Blink:Cast(Player) then Debug("闪现") end end end }, { x = 640.108, y = -317.193, z = -52.095, func = CastBuff }, { x = 641.349, y = -325.579, z = -52.034, func = CastBuff }, { x = 642.182, y = -336.184, z = -52.019, func = CastBuff }, { x = 637.410, y = -339.974, z = -52.019, func = CastBuff }, { x = 622.362, y = -359.445, z = -52.019, func = CastBuff }, { x = 613.337, y = -366.975, z = -52.018, r = 1, func = function(self) if self.CurOffset < 1.5 then self.Pause = true if not Player.Moving then CastBlizzard(POS_BLIZZARD["78-1"], 1) Delay(1600 - ATP_BLIZZARD_TIME) CastBlizzard(POS_BLIZZARD["78-2"], 1) Delay(1200 - ATP_BLIZZARD_TIME) self.Pause = false end end end }, { x = 623.973, y = -355.896, z = -52.019, func = function(self) if self.CurOffset < 1.5 and Spell.ArcaneExplosion:IsReady(1) and Spell.ArcaneExplosion:Cast(Player, 1) then Debug("魔爆术") end end }, { x = 644.986206, y = -358.945007, z = -52.019264, func = function(self) if self.CurOffset < 1.5 then if Spell.FrostNova:IsReady() and Spell.FrostNova:Cast(Player, 1) then Debug("冰霜新星") end end end }, { x = 658.221558, y = -361.874725, z = -52.019314, func = CastBuff }, { x = 703.540405, y = -372.268494, z = -52.019268, func = function(self) if self.CurOffset < 1.5 and Spell.Blink:IsReady() then FaceDirection(712.498657, -351.085968, true) if Spell.Blink:Cast(Player) then Debug("闪现") end end end }, { x = 712.498657, y = -351.085968, z = -51.965038, func = function(self) end }, { x = 725.503662, y = -337.407562, z = -50.873936, func = CastBuff }, { x = 738.538574, y = -342.697540, z = -50.806553, func = CastBuff }, { x = 754.983093, y = -350.542236, z = -50.662857, func = function(self) if self.CurOffset < 1.5 then self.Pause = true if not Player.Moving then if ATP_BLIZZARD_START == 0 and APT_LAST_BLIZZARD_POSITION ~= POS_BLIZZARD["86-1"] then CastBlizzard(POS_BLIZZARD["86-1"], 1) end if ATP_BLIZZARD_START == 0 or ATP_BLIZZARD_TIME > 3100 or NearPlayer(5) > 1 then if Spell.ArcaneExplosion:IsReady(1) and Spell.ArcaneExplosion:Cast(Player, 1) then Debug("魔爆术") end self.Pause = false end end end end }, { x = 765.284, y = -353.156, z = -61.386, func = function(self) if self.CurOffset < 1.5 then self.Pause = true if not Player.Moving then if NearPosition(POS_BLIZZARD["87-1"], 13) > 0 then if ATP_BLIZZARD_START == 0 and APT_LAST_BLIZZARD_POSITION ~= POS_BLIZZARD["87-1"] then CastBlizzard(POS_BLIZZARD["87-1"], 1) end end if APT_LAST_BLIZZARD_POSITION == POS_BLIZZARD["87-1"] and (ATP_BLIZZARD_START == 0 or ATP_BLIZZARD_TIME > 4060) then self.Pause = false end end end end }, { x = 783.151, y = -368.847, z = -59.810, func = function(self) if self.CurOffset < 1.5 and Spell.Blink:IsReady() then FaceDirection(800.150, -403.169, true) if Spell.Blink:Cast(Player) then Debug("闪现") end end end }, { x = 800.150, y = -403.169, z = -58.253, func = function(self) if not Buff.MageArmor:Exist() and not Spell.MageArmor:LastCast() and Spell.MageArmor:IsReady() and Spell.MageArmor:Cast(Player) then Debug("释放魔甲术") end end }, { x = 803.105, y = -423.044, z = -53.540, func = nil }, { x = 818.074, y = -450.292, z = -56.276, func = nil }, { x = 820.290, y = -456.885, z = -56.289, func = nil }, { x = 806.466, y = -490.028, z = -54.335, func = function(self) if Item.ManaRuby:IsReady() and Item.ManaRuby:InBag() and Item.ManaRuby:Use() then Debug("使用法力红宝石") end end }, { x = 779.317, y = -516.969, z = -52.584, func = function(self) if Spell.Blink:IsReady() then FaceDirection(777.564, -520.082, true) if Spell.Blink:Cast(Player) then Debug("闪现") end end end }, { x = 777.564, y = -520.082, z = -52.128, func = function(self) if self.CurOffset < 1.5 then if Buff.IceBarrier:Remain() < 50 and Spell.IceBarrier:IsReady() and Spell.IceBarrier:Cast() then Debug("寒冰护体") end end end }, { x = 782.163, y = -525.035, z = -49.489, func = nil }, { x = 789.671, y = -525.863, z = -47.396, func = function(self) if self.CurOffset < 1.5 and Spell.Blink:IsReady() then FaceDirection(806.001465, -514.490540, true) if Spell.Blink:Cast(Player) then Debug("闪现") end end end }, { x = 806.001465, y = -514.490540, z = -41.474762, func = CastBuff }, { x = 802.520, y = -507.210, z = -40.931, func = CastBuff }, { x = 795.788391, y = -494.081482, z = -39.892342, func = function(self) if self.CurOffset < 1.5 then if Buff.ManaShield:Remain() < 40 and Spell.ManaShield:IsReady() and Spell.ManaShield:Cast() then Debug("法力盾") end end end },
     }, 1.5) local FM_REAATHER = FixedNode({
         { x = 783.566, y = -489.297, z = -40.131, func = function(self) if self.CurOffset < 1.5 then if Spell.FrostNova:IsReady() and Spell.FrostNova:Cast(Player, 1) then Debug("冰霜新星") end end end }, { x = 767.461, y = -473.609, z = -40.904, func = CastBuff }, { x = 741.840, y = -471.367, z = -39.208, func = nil }, { x = 735.873413, y = -482.493835, z = -40.937424, func = function(self) if self.CurOffset < 1.5 and Spell.Blink:IsReady() then FaceDirection(745.279968, -531.770630, true) if Spell.Blink:Cast(Player) then Debug("闪现") end end end }, { x = 745.279968, y = -531.770630, z = -35.009106, func = CastBuff }, { x = 752.664, y = -541.457, z = -32.484 }, { x = 777.229, y = -534.736, z = -37.139, func = function(self) if self.CurOffset < 1.5 then self.Pause = true if not Player.Moving then if APT_LAST_BLIZZARD_POSITION ~= POS_BLIZZARD_REGATHER["7-1"] and APT_LAST_BLIZZARD_POSITION ~= POS_BLIZZARD_REGATHER["7-2"] and ATP_BLIZZARD_START == 0 then CastBlizzard(POS_BLIZZARD_REGATHER["7-1"], 1) end if APT_LAST_BLIZZARD_POSITION == POS_BLIZZARD_REGATHER["7-1"] and ATP_BLIZZARD_START == 0 then CastBlizzard(POS_BLIZZARD_REGATHER["7-2"], 1) end if APT_LAST_BLIZZARD_POSITION == POS_BLIZZARD_REGATHER["7-2"] and (ATP_BLIZZARD_START == 0 or NearPlayer(8) > 1) then self.Pause = false end end end end }, { x = 782.359, y = -526.644, z = -48.832, func = CastBuff }, { x = 787.019, y = -516.708, z = -52.802, func = function(self) if self.CurOffset < 1.5 and Spell.Blink:IsReady() then FaceDirection(811.887, -480.648, true) if Spell.Blink:Cast(Player) then Debug("闪现") end end end }, { x = 811.887, y = -480.648, z = -54.912, func = CastBuff }, { x = 820.799, y = -468.357, z = -55.917, func = CastBuff }, { x = 835.322, y = -450.158, z = -56.394, func = CastBuff }, { x = 856.643, y = -423.649, z = -52.433, func = function(self) if self.CurOffset < 1.5 then self.Pause = true if NearPosition(POS_BLIZZARD_REGATHER["13-1"], 12) > 0 then if APT_LAST_BLIZZARD_POSITION ~= POS_BLIZZARD_REGATHER["13-1"] and ATP_BLIZZARD_START == 0 then CastBlizzard(POS_BLIZZARD_REGATHER["13-1"], 1) end if APT_LAST_BLIZZARD_POSITION == POS_BLIZZARD_REGATHER["13-1"] and (ATP_BLIZZARD_START == 0 or ATP_BLIZZARD_TIME > 4000) then if Spell.Blink:IsReady() then FaceDirection(872.628, -398.523, true) if Spell.Blink:Cast(Player) then Debug("闪现") end end self.Pause = false end end end end }, { x = 872.628, y = -398.523, z = -51.789, func = nil }, { x = 874.728, y = -392.915, z = -52.050, func = function(self) if self.CurOffset < 1.5 then self.Pause = true if NearPosition(POS_BLIZZARD_REGATHER["15-1"], 12) > 0 then if APT_LAST_BLIZZARD_POSITION ~= POS_BLIZZARD_REGATHER["15-1"] and ATP_BLIZZARD_START == 0 then CastBlizzard(POS_BLIZZARD_REGATHER["15-1"], 1) end if APT_LAST_BLIZZARD_POSITION == POS_BLIZZARD_REGATHER["15-1"] and (ATP_BLIZZARD_START == 0 or ATP_BLIZZARD_TIME > 4000) then self.Pause = false end end end end }, { x = 873.252, y = -380.208, z = -52.050, func = CastBuff }, { x = 869.291, y = -366.403, z = -52.050, func = CastBuff }, { x = 845.586121, y = -360.740265, z = -51.471371, func = CastBuff }, { x = 820.248352, y = -353.131927, z = -51.577480, func = nil }, { x = 811.975098, y = -355.695038, z = -51.518608, func = function(self) if self.CurOffset < 1.5 and Spell.Blink:IsReady() then FaceDirection(779.863953, -340.787811, true) if Spell.Blink:Cast(Player) then Debug("闪现") end end end }, { x = 779.863953, y = -340.787811, z = -50.309078, func = CastBuff }, { x = 766.998230, y = -333.499176, z = -50.886410, func = CastBuff }, { x = 758.889648, y = -333.212250, z = -51.235672, func = nil }, { x = 754.818, y = -349.923, z = -50.662, func = function(self) if self.CurOffset < 1.5 then self.Pause = true if not Player.Moving and NearPosition(POS_BLIZZARD_REGATHER["24-1"], 12) > 0 then if APT_LAST_BLIZZARD_POSITION ~= POS_BLIZZARD_REGATHER["24-1"] and APT_LAST_BLIZZARD_POSITION ~= POS_BLIZZARD_REGATHER["24-2"] and ATP_BLIZZARD_START == 0 then CastBlizzard(POS_BLIZZARD_REGATHER["24-1"], 1) end if APT_LAST_BLIZZARD_POSITION == POS_BLIZZARD_REGATHER["24-1"] and (ATP_BLIZZARD_START == 0 or ATP_BLIZZARD_TIME > 4000) then CastBlizzard(POS_BLIZZARD_REGATHER["24-2"], 1) end if APT_LAST_BLIZZARD_POSITION == POS_BLIZZARD_REGATHER["24-2"] and (ATP_BLIZZARD_START == 0 or NearPlayer(8) > 0) then self.Pause = false end end end end }, { x = 763.548, y = -357.181, z = -61.608, func = nil }, { x = 775.008, y = -364.194, z = -61.317, func = function(self) if self.CurOffset < 1.5 and Spell.Blink:IsReady() then FaceDirection(791.448, -378.962, true) if Spell.Blink:Cast(Player) then Debug("闪现") end end end }, { x = 791.448, y = -378.962, z = -59.086, func = nil }, { x = 797.976, y = -400.188, z = -58.570, func = nil }, { x = 801.459, y = -422.197, z = -53.523, func = nil }, { x = 809.273, y = -436.363, z = -55.033, func = nil }, { x = 819.873, y = -455.605, z = -56.293, func = nil }, { x = 812.762, y = -475.530, z = -55.232, func = nil }, { x = 810.921, y = -481.116, z = -54.817, func = function(self) if self.CurOffset < 1.5 and Spell.Blink:IsReady() then FaceDirection(796.043, -498.429, true) if Spell.Blink:Cast(Player) then Debug("闪现") end end end }, { x = 796.043, y = -498.429, z = -53.345, func = nil }, { x = 779.317, y = -516.969, z = -52.584, func = CastBuff }, { x = 777.564, y = -520.082, z = -52.128, func = CastBuff }, { x = 782.163, y = -525.035, z = -49.489, func = CastBuff }, { x = 789.671, y = -525.863, z = -47.396, func = CastBuff }, { x = 806.001, y = -514.491, z = -41.475, func = CastBuff }, { x = 802.520, y = -507.210, z = -40.931, func = CastBuff }, { x = 795.788, y = -494.081, z = -39.892, func = CastBuff },
     }, 1.5) local FM_LOOT = FixedNode({ { x = 775.08575439453, y = -509.5458984375, z = -52.721622467041, func = Loot }, { x = 777.67895507813, y = -517.12036132813, z = -52.730648040771, func = Loot }, { x = 781.33123779297, y = -523.84191894531, z = -50.105331420898, func = Loot }, { x = 788.61492919922, y = -526.21734619141, z = -47.438026428223, func = Loot }, { x = 795.37799072266, y = -522.57360839844, z = -44.710525512695, func = Loot }, { x = 801.4970703125, y = -517.89581298828, z = -42.294002532959, func = Loot }, { x = 803.16241455078, y = -510.02688598633, z = -41.200710296631, func = Loot }, { x = 800.30578613281, y = -502.55303955078, z = -40.456607818604, func = Loot }, { x = 794.84674072266, y = -496.62869262695, z = -39.953914642334, func = Loot }, }, 1) local FM_LURE_EX = FixedNode({
@@ -1603,32 +1652,536 @@ local function StartSolo()
 
     local function Task_ReGather() if FM_REAATHER:Move() then GATHER_STEP = 1 ChangeTask(SOLO_STATE.GATHER_1) end end
 
-    local function Task_Combat() if not ATP_NEED_RESET then if not ATP_NEED_RESET then if ATP.Settings.Mode == 1 then if ImpCount(40) < 8 then print( "小鬼数量小于5,如翻车重置副本") ATP_NEED_RESET = true end else if ImpCount(40) < 15 then print( "小鬼数量小于10,如翻车重置副本") ATP_NEED_RESET = true end end end end local Count, Table = NearPlayer(50) if Count > 1 then if COMBAT_STEP == 1 then if not Player.Moving and ATP_BLIZZARD_START == 0 then local Pos = KillImp(8) if Pos then CastBlizzard(Position(Pos.x, Pos.y, Pos.z)) else CastBlizzard(POS_BLIZZARD_COMBAT[1]) end end if ATP_BLIZZARD_START ~= 0 then print( "小鬼数量:%d", ImpCount(40)) FaceDirection(1.017054438591, true) COMBAT_STEP = 2 end end if COMBAT_STEP == 2 then if ATP_BLIZZARD_START == 0 or (FIRST_COMBAT and ATP_BLIZZARD_TIME > 5060) or ATP_BLIZZARD_TIME > 6060 then if (Buff.IceBarrier:Remain() > 10 or not Spell.IceBarrier:IsReady()) and Buff.ManaShield:Remain() < 20 and Spell.ManaShield:IsReady() and Spell.ManaShield:Cast() then return true end if not Spell.IceBarrier:LastCast() and Spell.IceBarrier:IsReady() and Spell.IceBarrier:Cast() then return true end MoveToStep() COMBAT_STEP = 3 end end if COMBAT_STEP == 3 then if not Player.Moving and ATP_BLIZZARD_START == 0 then if FIRST_COMBAT then if CastBlizzard(POS_BLIZZARD_COMBAT[2], 1) then FIRST_COMBAT = false end else CastBlizzard(POS_BLIZZARD_COMBAT[2]) end end if ATP_BLIZZARD_START ~= 0 and APT_LAST_BLIZZARD_POSITION == POS_BLIZZARD_COMBAT[2] then FaceDirection(4.35123062, true) COMBAT_STEP = 4 end end if COMBAT_STEP == 4 then if ATP_BLIZZARD_START == 0 or NearPlayer(7) > 0 then if MoveToTree() then COMBAT_STEP = 1 else if not Spell.IceBarrier:LastCast() and Spell.IceBarrier:IsReady() and Spell.IceBarrier:Cast() then return true end end end end
-    end if Count == 1 then local unit = Table[1] if COMBAT_STEP < 3 and (unit.ReachDistance < 15 or unit.PosZ < -49) and unit.PosZ < -48 then if (Buff.IceBarrier:Remain() > 10 or not Spell.IceBarrier:IsReady()) and Buff.ManaShield:Remain() < 20 and Spell.ManaShield:IsReady() and Spell.ManaShield:Cast() then return true end if not Spell.IceBarrier:LastCast() and Buff.IceBarrier:Remain() < 10 and Spell.IceBarrier:IsReady() and Spell.IceBarrier:Cast() then return true end MoveToStep() COMBAT_STEP = 3 elseif COMBAT_STEP > 2 and unit.ReachDistance < 15 and unit.PosZ > -41 then if MoveToTree() then COMBAT_STEP = 1 else if not Spell.IceBarrier:LastCast() and Spell.IceBarrier:IsReady() and Spell.IceBarrier:Cast() then return true end end end if not Player.Moving then local rank = BestRank("Frostbolt") if Spell.Frostbolt:IsReady(rank) and FacingTarget(unit) and Spell.Frostbolt:Cast(unit, rank) then Delay(550) while Player.Casting do Delay(100) end end end end if Count == 0 then if (Buff.IceBarrier:Remain() > 10 or not Spell.IceBarrier:IsReady()) and Buff.ManaShield:Remain() < 20 and Spell.ManaShield:IsReady() and Spell.ManaShield:Cast() then return true end if not Spell.IceBarrier:LastCast() and Buff.IceBarrier:Remain() < 10 and Spell.IceBarrier:IsReady() and Spell.IceBarrier:Cast() then return true end Count, Table = NearPlayer(4, true) if Count == 0 and FP_COMBAT:Move() then if not Player.Combat then local count = 0 for _, v in pairs(DMW.Units) do if v.Dead then count = count + 1 end end print( "本轮击杀怪物%d", count) ChangeTask(SOLO_STATE.LOOT) end else if Count > 0 then StopMove() if Spell.ArcaneExplosion:IsReady() and Spell.ArcaneExplosion:Cast(Player) then end end end end
+    local function Task_Combat() 
+        if not ATP_NEED_RESET then 
+            if not ATP_NEED_RESET then 
+                if ATP.Settings.Mode == 1 then 
+                    if ImpCount(40) < 8 then 
+                        print( "小鬼数量小于5,如翻车重置副本") 
+                        ATP_NEED_RESET = true 
+                    end 
+                else if ImpCount(40) < 15 then 
+                    print( "小鬼数量小于10,如翻车重置副本") 
+                    ATP_NEED_RESET = true 
+                end 
+            end 
+        end 
+    end 
+    
+    local Count, Table = NearPlayer(50) 
+    if Count > 1 then 
+        if COMBAT_STEP == 1 then 
+            if not Player.Moving and ATP_BLIZZARD_START == 0 then 
+                local Pos = KillImp(8) 
+                if Pos then 
+                    CastBlizzard(Position(Pos.x, Pos.y, Pos.z)) 
+                else 
+                    CastBlizzard(POS_BLIZZARD_COMBAT[1]) 
+                end 
+            end 
+            
+            if ATP_BLIZZARD_START ~= 0 then 
+                print( "小鬼数量:%d", ImpCount(40)) 
+                FaceDirection(1.017054438591, true) 
+                COMBAT_STEP = 2 
+            end 
+        end 
+        
+        if COMBAT_STEP == 2 then 
+            if ATP_BLIZZARD_START == 0 or (FIRST_COMBAT and ATP_BLIZZARD_TIME > 5060) or ATP_BLIZZARD_TIME > 6060 then 
+                if (Buff.IceBarrier:Remain() > 10 or not Spell.IceBarrier:IsReady()) and Buff.ManaShield:Remain() < 20 and Spell.ManaShield:IsReady() and Spell.ManaShield:Cast() then 
+                    return true 
+                end 
+                
+                if not Spell.IceBarrier:LastCast() and Spell.IceBarrier:IsReady() and Spell.IceBarrier:Cast() then 
+                    return true 
+                end 
+                
+                MoveToStep() 
+                COMBAT_STEP = 3 
+            end 
+        end 
+        
+        if COMBAT_STEP == 3 then 
+            if not Player.Moving and ATP_BLIZZARD_START == 0 then 
+                if FIRST_COMBAT then 
+                    if CastBlizzard(POS_BLIZZARD_COMBAT[2], 1) then 
+                        FIRST_COMBAT = false 
+                    end 
+                else 
+                    CastBlizzard(POS_BLIZZARD_COMBAT[2]) 
+                end 
+            end 
+            
+            if ATP_BLIZZARD_START ~= 0 and APT_LAST_BLIZZARD_POSITION == POS_BLIZZARD_COMBAT[2] then 
+                FaceDirection(4.35123062, true) 
+                COMBAT_STEP = 4 
+            end 
+        end 
+        if COMBAT_STEP == 4 then 
+            if ATP_BLIZZARD_START == 0 or NearPlayer(7) > 0 then 
+                if MoveToTree() then 
+                    COMBAT_STEP = 1 
+                else 
+                    if not Spell.IceBarrier:LastCast() and Spell.IceBarrier:IsReady() and Spell.IceBarrier:Cast() then 
+                        return true 
+                    end 
+                end 
+            end 
+        end
+    end 
+    
+    if Count == 1 then 
+        local unit = Table[1] 
+        if COMBAT_STEP < 3 and (unit.ReachDistance < 15 or unit.PosZ < -49) and unit.PosZ < -48 then 
+            if (Buff.IceBarrier:Remain() > 10 or not Spell.IceBarrier:IsReady()) and Buff.ManaShield:Remain() < 20 and Spell.ManaShield:IsReady() and Spell.ManaShield:Cast() then 
+                return true 
+            end 
+            
+            if not Spell.IceBarrier:LastCast() and Buff.IceBarrier:Remain() < 10 and Spell.IceBarrier:IsReady() and Spell.IceBarrier:Cast() then 
+                return true 
+            end 
+            MoveToStep() 
+            COMBAT_STEP = 3 
+        elseif COMBAT_STEP > 2 and unit.ReachDistance < 15 and unit.PosZ > -41 then 
+            if MoveToTree() then 
+                COMBAT_STEP = 1 
+            else if not Spell.IceBarrier:LastCast() and Spell.IceBarrier:IsReady() and Spell.IceBarrier:Cast() then 
+                return true 
+            end 
+        end 
+    end 
+    
+    if not Player.Moving then 
+        local rank = BestRank("Frostbolt") 
+        if Spell.Frostbolt:IsReady(rank) and FacingTarget(unit) and Spell.Frostbolt:Cast(unit, rank) then 
+            Delay(550) 
+            while Player.Casting do 
+                Delay(100) 
+            end 
+        end 
+    end 
+end 
+
+if Count == 0 then 
+    if (Buff.IceBarrier:Remain() > 10 or not Spell.IceBarrier:IsReady()) and Buff.ManaShield:Remain() < 20 and Spell.ManaShield:IsReady() and Spell.ManaShield:Cast() then 
+        return true 
+    end 
+    
+    if not Spell.IceBarrier:LastCast() and Buff.IceBarrier:Remain() < 10 and Spell.IceBarrier:IsReady() and Spell.IceBarrier:Cast() then 
+        return true 
+    end 
+    
+    Count, Table = NearPlayer(4, true) 
+    if Count == 0 and FP_COMBAT:Move() then 
+        if not Player.Combat then 
+            local count = 0 for _, v in pairs(DMW.Units) do 
+                if v.Dead then 
+                    count = count + 1 
+                end 
+            end 
+            print( "本轮击杀怪物%d", count) 
+            ChangeTask(SOLO_STATE.LOOT) 
+        end 
+    else if Count > 0 then 
+        StopMove() 
+        if Spell.ArcaneExplosion:IsReady() and Spell.ArcaneExplosion:Cast(Player) then end 
+    end 
+end 
+end  
+end
+
+    local function Task_Loot() 
+        if ATP.Settings.NotLoot then 
+            print( "禁止拾取") 
+            ChangeProcess(PROCESS_STATE.EXIT_INSTANCE) 
+            return true 
+        end 
+        
+        if FM_LOOT:Move() then 
+            if Player:GetFreeBagSlots() == 0 then 
+                if not Bag:GeForceDestroyItems(1) then 
+                    print( "背包满无灰/白色物品可销毁,放弃使用浮渣覆盖的袋子") ChangeProcess(PROCESS_STATE.EXIT_INSTANCE) 
+                    return true 
+                end 
+            end 
+            
+            if OPEN_PACK_TIMER > 0 and Bag:ItemExist("浮渣覆盖的袋子") then 
+                for _, k in pairs(Bag.Items) do 
+                    if k.Name == "浮渣覆盖的袋子" then 
+                        OPEN_PACK_TIMER = OPEN_PACK_TIMER - 1 
+                        RunMacroText("/use 浮渣覆盖的袋子") 
+                        print( "剩余开袋子机会:%d", OPEN_PACK_TIMER) 
+                        Delay(2000) 
+                        CloseAllWindows() 
+                    end 
+                end 
+            else 
+                ChangeProcess(PROCESS_STATE.EXIT_INSTANCE) 
+            end 
+        end 
     end
 
-    local function Task_Loot() if ATP.Settings.NotLoot then print( "禁止拾取") ChangeProcess(PROCESS_STATE.EXIT_INSTANCE) return true end if FM_LOOT:Move() then if Player:GetFreeBagSlots() == 0 then if not Bag:GeForceDestroyItems(1) then print( "背包满无灰/白色物品可销毁,放弃使用浮渣覆盖的袋子") ChangeProcess(PROCESS_STATE.EXIT_INSTANCE) return true end end if OPEN_PACK_TIMER > 0 and Bag:ItemExist("浮渣覆盖的袋子") then for _, k in pairs(Bag.Items) do if k.Name == "浮渣覆盖的袋子" then OPEN_PACK_TIMER = OPEN_PACK_TIMER - 1 RunMacroText("/use 浮渣覆盖的袋子") print( "剩余开袋子机会:%d", OPEN_PACK_TIMER) Delay(2000) CloseAllWindows() end end else ChangeProcess(PROCESS_STATE.EXIT_INSTANCE) end end end
-
-    SOLO_ROUTE = { PREPARE = Task_Prepare, LURE = Task_Lure, LURE_EX = Task_Lure_ex, GATHER_1 = Task_Gather_1, REGATHER = Task_ReGather, COMBAT = Task_Combat, LOOT = Task_Loot } out.Run = function() if Player:AuraByID(9080) or Player:AuraByID(11876) or Player:AuraByID(15593) or Player:AuraByID(21331) then if Spell.IceBlock:IsReady() and Spell.IceBlock:Cast(Player) then print( "DEBUFF，释放寒冰屏障解除") end end if Buff.IceBlock:Exist() then RunMacroText("/cancelAura " .. GetSpellInfo(Spell.IceBlock.SpellID)) while Player:HasFlag(DMW.Enums.UnitFlags.Stunned) do Delay(10) end end if Player.HP < 50 and Item.SuperiorHealingPotion:IsReady() and Item.SuperiorHealingPotion:InBag() and Item.SuperiorHealingPotion:Use() then print( "使用强效治疗药水") end if CURRENT_STATE == SOLO_STATE.COMBAT then if not Player.Casting and ATP_ICE_BARRIER_AMOUNT < 100 and Spell.IceBarrier:CD() > 5 and Spell.ColdSnap:IsReady() then if Spell.ColdSnap:Cast() then print( "释放急速冷却成功") end end end if CURRENT_STATE == SOLO_STATE.GATHER_1 then ATP.Pulse = ATP.Settings.UpdateDelay_1 elseif CURRENT_STATE == SOLO_STATE.GATHER_1 then ATP.Pulse = ATP.Settings.UpdateDelay_2 elseif CURRENT_STATE == SOLO_STATE.COMBAT then ATP.Pulse = ATP.Settings.UpdateDelay_3 else ATP.Pulse = 0 end SOLO_ROUTE[CURRENT_STATE]()
-    end return out
+    SOLO_ROUTE = { 
+        PREPARE = Task_Prepare, 
+        LURE = Task_Lure, 
+        LURE_EX = Task_Lure_ex, 
+        GATHER_1 = Task_Gather_1, 
+        REGATHER = Task_ReGather, 
+        COMBAT = Task_Combat, 
+        LOOT = Task_Loot 
+    } 
+    
+    out.Run = function() 
+        if Player:AuraByID(9080) or Player:AuraByID(11876) or Player:AuraByID(15593) or Player:AuraByID(21331) then 
+            if Spell.IceBlock:IsReady() and Spell.IceBlock:Cast(Player) then 
+                print( "DEBUFF，释放寒冰屏障解除") 
+            end 
+        end 
+        
+        if Buff.IceBlock:Exist() then 
+            RunMacroText("/cancelAura " .. GetSpellInfo(Spell.IceBlock.SpellID)) 
+            
+            while Player:HasFlag(DMW.Enums.UnitFlags.Stunned) do 
+                Delay(10) 
+            end 
+        end 
+        
+        if Player.HP < 50 and Item.SuperiorHealingPotion:IsReady() and Item.SuperiorHealingPotion:InBag() and Item.SuperiorHealingPotion:Use() then 
+            print( "使用强效治疗药水") 
+        end 
+        
+        if CURRENT_STATE == SOLO_STATE.COMBAT then 
+            if not Player.Casting and ATP_ICE_BARRIER_AMOUNT < 100 and Spell.IceBarrier:CD() > 5 and Spell.ColdSnap:IsReady() then 
+                if Spell.ColdSnap:Cast() then 
+                    print( "释放急速冷却成功") 
+                end 
+            end 
+        end 
+        
+        if CURRENT_STATE == SOLO_STATE.GATHER_1 then 
+            ATP.Pulse = ATP.Settings.UpdateDelay_1 
+        elseif CURRENT_STATE == SOLO_STATE.GATHER_1 then 
+            ATP.Pulse = ATP.Settings.UpdateDelay_2 
+        elseif CURRENT_STATE == SOLO_STATE.COMBAT then 
+            ATP.Pulse = ATP.Settings.UpdateDelay_3 
+        else ATP.Pulse = 0 
+        end 
+        SOLO_ROUTE[CURRENT_STATE]()
+    end 
+    return out
 end
 
 local function Supply() local out = {} local FP_EXIT = FixedPath({ { x = 753.90783691406, y = -621.14678955078, z = -32.990432739258, node = 0 }, }, 1.5, true) local FP_CAVE = FixedPath({
     { x = -1197.228515625, y = 2889.9743652344, z = 86.030281066895, node = 0 }, { x = -1216.5825195313, y = 2899.8178710938, z = 86.167465209961, node = 1 }, { x = -1233.1459960938, y = 2907.8173828125, z = 87.286987304688, node = 2 }, { x = -1274.4450683594, y = 2908.8369140625, z = 87.862754821777, node = 3 }, { x = -1286.3272705078, y = 2926.0964355469, z = 88.115928649902, node = 4 }, { x = -1295.7532958984, y = 2923.4853515625, z = 88.285163879395, node = 5 }, { x = -1307.3150634766, y = 2900.9851074219, z = 88.667488098145, node = 6 }, { x = -1324.4398193359, y = 2879.4995117188, z = 88.587532043457, node = 7 }, { x = -1345.1585693359, y = 2855.1015625, z = 87.541046142578, node = 8 }, { x = -1358.2370605469, y = 2852.0109863281, z = 87.064292907715, node = 9 }, { x = -1373.8304443359, y = 2873.7976074219, z = 90.728591918945, node = 10 }, { x = -1380.7648925781, y = 2901.0192871094, z = 89.043975830078, node = 11 }, { x = -1384.5135498047, y = 2919.6860351563, z = 92.695182800293, node = 12 }, { x = -1411.1411132813, y = 2932.8293457031, z = 95.166351318359, node = 13 }, { x = -1424.0966796875, y = 2955.1362304688, z = 96.200889587402, node = 14 }, { x = -1427.8107910156, y = 2977.5673828125, z = 100.45086669922, node = 15 }, { x = -1413.5487060547, y = 2979.3686523438, z = 101.58306884766, node = 16 }, { x = -1398.7265625, y = 2981.2595214844, z = 106.06832885742, node = 17 }, { x = -1398.435546875, y = 2989.2724609375, z = 106.35871887207, node = 18 }, { x = -1428.43359375, y = 2990.7514648438, z = 115.14781188965, node = 19 }, { x = -1438.0081787109, y = 3000.2275390625, z = 115.28770446777, node = 20 }, { x = -1451.3765869141, y = 2992.8625488281, z = 114.92600250244, node = 21 }, { x = -1487.73828125, y = 2971.4838867188, z = 119.02870178223, node = 22 }, { x = -1490.3297119141, y = 2960.1918945313, z = 120.94134521484, node = 23 }, { x = -1487.7290039063, y = 2952.8566894531, z = 121.35816955566, node = 24 }, { x = -1466.7634277344, y = 2953.4704589844, z = 122.16088104248, node = 25 }, { x = -1440.8970947266, y = 2958.4270019531, z = 124.19808197021, node = 26 }, { x = -1414.7874755859, y = 2960.0571289063, z = 124.5036315918, node = 27 }, { x = -1405.0040283203, y = 2965.962890625, z = 126.87750244141, node = 28 }, { x = -1402.8516845703, y = 2978.0622558594, z = 129.84881591797, node = 29 }, { x = -1416.2529296875, y = 2986.1127929688, z = 131.84045410156, node = 30 }, { x = -1421.62890625, y = 2983.4929199219, z = 133.15423583984, node = 31 }, { x = -1425.5311279297, y = 2963.4387207031, z = 134.55429077148, node = 32 }, { x = -1424.3782958984, y = 2935.2036132813, z = 135.35877990723, node = 33 }, { x = -1422.7427978516, y = 2919.3811035156, z = 136.20347595215, node = 34 }, { x = -1420.4649658203, y = 2889.5544433594, z = 132.89823913574, node = 35 }, { x = -1420.6968994141, y = 2881.9189453125, z = 132.56176757813, node = 36 },
-}, 1.5, true) local FP_HORDE_TOWN = FixedPath({ { x = -1559.964233, y = 2893.920410, z = 113.094894, node = 3 }, { x = -1665.7062988281, y = 3084.3530273438, z = 30.447952270508, node = 3 }, }, 2, true) local FP_ALLIANCE_TOWN = FixedPath({ { x = -1184.601440, y = 2781.319092, z = 111.180641, node = 0 }, { x = -1175.635620, y = 2729.212646, z = 111.479103, node = 0 }, { x = -1376.672974, y = 2457.328857, z = 88.859634, node = 0 }, { x = -29.915306, y = 1198.095825, z = 100.082611, node = 0 }, }, 2, true) local FP_ALLIANCE_SUPPLY_NPC = FixedPath({ { x = 246.1639251709, y = 1262.2932128906, z = 192.16372680664, node = 1 }, { x = 226.16812133789, y = 1289.2593994141, z = 190.0341796875, node = 2 }, { x = 208.48878479004, y = 1274.1743164063, z = 190.52438354492, node = 3 }, { x = 192.77297973633, y = 1249.5145263672, z = 178.85913085938, node = 4 }, { x = 169.71820068359, y = 1206.5511474609, z = 166.18746948242, node = 5 }, { x = 181.10084533691, y = 1182.4008789063, z = 166.09317016602, node = 6 }, { x = 201.6139831543, y = 1179.1303710938, z = 167.99867248535, node = 7 }, }, 2) local FP_HORDE_SUPPLY_NPC = FixedPath({ { x = -1605.4113769531, y = 3130.6186523438, z = 47.071521759033, node = 0 }, { x = -1617.180420, y = 3113.745850, z = 42.740662, node = 1 }, { x = -1627.4135742188, y = 3099.8742675781, z = 36.071754455566, node = 2 }, { x = -1665.7062988281, y = 3084.3530273438, z = 30.447952270508, node = 3 }, { x = -1675.480835, y = 3074.993896, z = 34.536400, node = 4 }, }, 2, true) local FP_ALLIANCE_STUCK = FixedPath({ { x = 255.293350, y = 1259.861694, z = 192.139221 } }, 0.5) local TOWN = nil local SUPPLY_ZONE = nil local SUPPLY_NPC_NAME = nil local SUPPLY_NPC_PATH = nil local IsRepaired = false local function IsSell(TempItem) if TempItem.NoValue then return false end if TempItem.Name == ATP.Settings.WaterName then if TempItem.BagID ~= 0 or TempItem.Slot > 4 then return true end return false end if TempItem.Name == ATP.Settings.FoodName then if TempItem.BagID ~= 0 or TempItem.Slot > 6 then return true end return false end if ATP.Settings.BagItems then for _, v in pairs(ATP.Settings.BagItems) do if string.find(TempItem.Name, v) then return false end end end if ATP.Settings.MailItems then for _, v in pairs(ATP.Settings.MailItems) do if string.find(TempItem.Name, v) then return false end end end if not IsSoulBound(TempItem.BagID, TempItem.Slot) and ((ATP.Settings.Rarity3 and TempItem.Rarity == 3) or (ATP.Settings.Rarity4 and TempItem.Rarity == 4)) then return false end return true end
+}, 1.5, true) local FP_HORDE_TOWN = FixedPath({ { x = -1559.964233, y = 2893.920410, z = 113.094894, node = 3 }, { x = -1665.7062988281, y = 3084.3530273438, z = 30.447952270508, node = 3 }, }, 2, true) local FP_ALLIANCE_TOWN = FixedPath({ { x = -1184.601440, y = 2781.319092, z = 111.180641, node = 0 }, { x = -1175.635620, y = 2729.212646, z = 111.479103, node = 0 }, { x = -1376.672974, y = 2457.328857, z = 88.859634, node = 0 }, { x = -29.915306, y = 1198.095825, z = 100.082611, node = 0 }, }, 2, true) local FP_ALLIANCE_SUPPLY_NPC = FixedPath({ { x = 246.1639251709, y = 1262.2932128906, z = 192.16372680664, node = 1 }, { x = 226.16812133789, y = 1289.2593994141, z = 190.0341796875, node = 2 }, { x = 208.48878479004, y = 1274.1743164063, z = 190.52438354492, node = 3 }, { x = 192.77297973633, y = 1249.5145263672, z = 178.85913085938, node = 4 }, { x = 169.71820068359, y = 1206.5511474609, z = 166.18746948242, node = 5 }, { x = 181.10084533691, y = 1182.4008789063, z = 166.09317016602, node = 6 }, { x = 201.6139831543, y = 1179.1303710938, z = 167.99867248535, node = 7 }, }, 2) local FP_HORDE_SUPPLY_NPC = FixedPath({ { x = -1605.4113769531, y = 3130.6186523438, z = 47.071521759033, node = 0 }, { x = -1617.180420, y = 3113.745850, z = 42.740662, node = 1 }, { x = -1627.4135742188, y = 3099.8742675781, z = 36.071754455566, node = 2 }, { x = -1665.7062988281, y = 3084.3530273438, z = 30.447952270508, node = 3 }, { x = -1675.480835, y = 3074.993896, z = 34.536400, node = 4 }, }, 2, true) 
 
-    out.Reset = function() TOWN = nil SUPPLY_ZONE = nil SUPPLY_NPC_NAME = nil SUPPLY_NPC_PATH = nil IsRepaired = false FP_EXIT:Reset() FP_CAVE:Reset() FP_ALLIANCE_TOWN:Reset() FP_HORDE_TOWN:Reset() FP_ALLIANCE_SUPPLY_NPC:Reset() FP_HORDE_SUPPLY_NPC:Reset() FP_ALLIANCE_STUCK:Reset() end out.Run = function() if not TOWN then if Player.Faction == "Horde" then SUPPLY_NPC_PATH = FP_HORDE_SUPPLY_NPC TOWN = FP_HORDE_TOWN SUPPLY_ZONE = CONST_STRING.HordeSupplyZoneText SUPPLY_NPC_NAME = CONST_STRING.HordeSupplyNpcName else SUPPLY_NPC_PATH = FP_ALLIANCE_SUPPLY_NPC TOWN = FP_ALLIANCE_TOWN SUPPLY_ZONE = CONST_STRING.AllianceSupplyZoneText SUPPLY_NPC_NAME = CONST_STRING.AllianceSupplyNpcName end local CD = GetHearthstoneCD() if CD < 60 then print( "炉石冷却%d秒，等待", CD) Delay(CD * 1010) RunMacroText("/use " .. CONST_STRING.Hearthstone) Delay(1000) while Player.Casting do Delay(500) end end else if not IsMounted() then if Buff.IceArmor:Remain() < 1200 and Spell.IceArmor:IsReady() and Spell.IceArmor:Cast() then print( "释放冰甲术成功") end if not Buff.IceBarrier:Exist() and Spell.IceBarrier:IsReady() and Spell.IceBarrier:Cast() then print( "释放寒冰护体") end end if PLAYER_ENTERING_WORLD then PLAYER_ENTERING_WORLD = false print( "场景切换等待2秒") Delay(2000) end if CONST_STRING.ZoneInstanceText == GetZoneText() then if Player.Instance == "party" then if FP_EXIT:NavMove() then MoveForwardStart() Delay(2000) MoveForwardStop() Delay(1000) end else FP_CAVE:NavMove() if FP_CAVE.Index == 34 or FP_CAVE.Index == 35 then for _, k in pairs(DMW.GameObjects) do if k.Distance < 5 and ObjectDisplayID(k.Pointer) == 4791 then ObjectInteract(k.Pointer) break end end end end elseif SUPPLY_ZONE == GetSubZoneText() then if ATP.IsInRegion(Player.PosX, Player.PosY, { { x = 257.697, y = 1262.587, z = 193.027 }, { x = 252.404, y = 1260.991, z = 192.141 }, { x = 251.742, y = 1259.401, z = 192.143 }, { x = 252.660, y = 1254.243, z = 192.148 }, { x = 254.181, y = 1249.283, z = 192.142 }, { x = 255.417, y = 1248.162, z = 192.141 }, { x = 260.918, y = 1249.101, z = 192.914 } }) then if FP_ALLIANCE_STUCK:Move() then FaceDirection(1.86796, true) MoveForwardStart() Delay(150) JumpOrAscendStart() AscendStop() Delay(1000) MoveForwardStop() end else if SUPPLY_NPC_PATH:NavMove() then if not Target or Target.Name ~= SUPPLY_NPC_NAME then for _, TempUnit in pairs(DMW.Units) do if TempUnit.Name == SUPPLY_NPC_NAME then TargetUnit(TempUnit.Pointer) break end end else if not MerchantFrame:IsShown() then ObjectInteract(Target.Pointer) Delay(1000) else local count = 0 for _, v in pairs(Bag.Items) do if IsSell(v) then count = count + 1 UseContainerItem(v.BagID, v.Slot) Delay(100) if count > 9 then break end end end if count == 0 then if not IsRepaired then RepairAllItems() IsRepaired = true Delay(500) end CloseMerchant() if ATP.Settings.EnableMail then ChangeProcess(PROCESS_STATE.MAIL) else ChangeProcess(PROCESS_STATE.GOTO_INSTANCE) end end end end else if SUPPLY_NPC_PATH.Index > 2 and SUPPLY_NPC_PATH.Index < 6 then Mount() end end
-    end else TOWN:NavMove() Mount()
+local FP_ALLIANCE_STUCK = FixedPath({ { x = 255.293350, y = 1259.861694, z = 192.139221 } }, 0.5) 
+
+local TOWN = nil 
+local SUPPLY_ZONE = nil 
+local SUPPLY_NPC_NAME = nil 
+local SUPPLY_NPC_PATH = nil 
+local IsRepaired = false 
+
+local function IsSell(TempItem) 
+    if TempItem.NoValue then 
+        return false 
+    end 
+    if TempItem.Name == ATP.Settings.WaterName then 
+        if TempItem.BagID ~= 0 or TempItem.Slot > 4 then 
+            return true 
+        end 
+        return false 
+    end 
+    
+    if TempItem.Name == ATP.Settings.FoodName then 
+        if TempItem.BagID ~= 0 or TempItem.Slot > 6 then 
+            return true 
+        end 
+        return false 
+    end 
+    
+    if ATP.Settings.BagItems then 
+        for _, v in pairs(ATP.Settings.BagItems) do 
+            if string.find(TempItem.Name, v) then 
+                return false 
+            end 
+        end 
+    end 
+    
+    if ATP.Settings.MailItems then 
+        for _, v in pairs(ATP.Settings.MailItems) do 
+            if string.find(TempItem.Name, v) then 
+                return false 
+            end 
+        end 
+    end 
+    
+    if not IsSoulBound(TempItem.BagID, TempItem.Slot) and ((ATP.Settings.Rarity3 and TempItem.Rarity == 3) or (ATP.Settings.Rarity4 and TempItem.Rarity == 4)) then 
+        return false 
+    end 
+    return true 
+end
+
+    out.Reset = function() 
+        TOWN = nil 
+        SUPPLY_ZONE = nil 
+        SUPPLY_NPC_NAME = nil 
+        SUPPLY_NPC_PATH = nil 
+        IsRepaired = false 
+        FP_EXIT:Reset() 
+        FP_CAVE:Reset() 
+        FP_ALLIANCE_TOWN:Reset() 
+        FP_HORDE_TOWN:Reset() 
+        FP_ALLIANCE_SUPPLY_NPC:Reset() 
+        FP_HORDE_SUPPLY_NPC:Reset() 
+        FP_ALLIANCE_STUCK:Reset() 
+    end 
+    
+    out.Run = function() 
+        if not TOWN then 
+            if Player.Faction == "Horde" then 
+                SUPPLY_NPC_PATH = FP_HORDE_SUPPLY_NPC 
+                TOWN = FP_HORDE_TOWN 
+                SUPPLY_ZONE = CONST_STRING.HordeSupplyZoneText 
+                SUPPLY_NPC_NAME = CONST_STRING.HordeSupplyNpcName 
+            else 
+                SUPPLY_NPC_PATH = FP_ALLIANCE_SUPPLY_NPC 
+                TOWN = FP_ALLIANCE_TOWN 
+                SUPPLY_ZONE = CONST_STRING.AllianceSupplyZoneText 
+                SUPPLY_NPC_NAME = CONST_STRING.AllianceSupplyNpcName 
+            end 
+            
+            local CD = GetHearthstoneCD() 
+            if CD < 60 then 
+                print( "炉石冷却%d秒，等待", CD) 
+                Delay(CD * 1010) 
+                RunMacroText("/use " .. CONST_STRING.Hearthstone) 
+                Delay(1000) 
+                
+                while Player.Casting do 
+                    Delay(500) 
+                end 
+            end 
+        else if not IsMounted() then 
+            if Buff.IceArmor:Remain() < 1200 and Spell.IceArmor:IsReady() and Spell.IceArmor:Cast() then 
+                print( "释放冰甲术成功") 
+            end if not Buff.IceBarrier:Exist() and Spell.IceBarrier:IsReady() and Spell.IceBarrier:Cast() then 
+                print( "释放寒冰护体") 
+            end 
+        end 
+        
+        if PLAYER_ENTERING_WORLD then 
+            PLAYER_ENTERING_WORLD = false 
+            print( "场景切换等待2秒") Delay(2000) 
+        end 
+        
+        if CONST_STRING.ZoneInstanceText == GetZoneText() then 
+            if Player.Instance == "party" then 
+                if FP_EXIT:NavMove() then 
+                    MoveForwardStart() 
+                    Delay(2000) 
+                    MoveForwardStop() 
+                    Delay(1000) 
+                end 
+            else 
+                FP_CAVE:NavMove() 
+                if FP_CAVE.Index == 34 or FP_CAVE.Index == 35 then 
+                    for _, k in pairs(DMW.GameObjects) do 
+                        if k.Distance < 5 and ObjectDisplayID(k.Pointer) == 4791 then 
+                            ObjectInteract(k.Pointer) 
+                            break 
+                        end 
+                    end 
+                end 
+            end 
+        elseif SUPPLY_ZONE == GetSubZoneText() then 
+            if ATP.IsInRegion(Player.PosX, Player.PosY, { { x = 257.697, y = 1262.587, z = 193.027 }, { x = 252.404, y = 1260.991, z = 192.141 }, { x = 251.742, y = 1259.401, z = 192.143 }, { x = 252.660, y = 1254.243, z = 192.148 }, { x = 254.181, y = 1249.283, z = 192.142 }, { x = 255.417, y = 1248.162, z = 192.141 }, { x = 260.918, y = 1249.101, z = 192.914 } }) then 
+                if FP_ALLIANCE_STUCK:Move() then 
+                    FaceDirection(1.86796, true) 
+                    MoveForwardStart() 
+                    Delay(150) 
+                    JumpOrAscendStart() 
+                    AscendStop() 
+                    Delay(1000) 
+                    MoveForwardStop() 
+                end 
+            
+            else if SUPPLY_NPC_PATH:NavMove() then 
+                if not Target or Target.Name ~= SUPPLY_NPC_NAME then 
+                    for _, TempUnit in pairs(DMW.Units) do 
+                        if TempUnit.Name == SUPPLY_NPC_NAME then 
+                            TargetUnit(TempUnit.Pointer) 
+                            break 
+                        end 
+                    end 
+                else if not MerchantFrame:IsShown() then 
+                    ObjectInteract(Target.Pointer) 
+                    Delay(1000) 
+                else 
+                    local count = 0 for _, v in pairs(Bag.Items) do 
+                        if IsSell(v) then 
+                            count = count + 1 
+                            UseContainerItem(v.BagID, v.Slot) Delay(100) 
+                            if count > 9 then 
+                                break 
+                            end 
+                        end 
+                    end 
+                    
+                    if count == 0 then 
+                        if not IsRepaired then 
+                            RepairAllItems() 
+                            IsRepaired = true 
+                            Delay(500) 
+                        end 
+                        CloseMerchant() 
+                        
+                        if ATP.Settings.EnableMail then 
+                            ChangeProcess(PROCESS_STATE.MAIL) 
+                        else 
+                            ChangeProcess(PROCESS_STATE.GOTO_INSTANCE) 
+                        end 
+                    end 
+                end 
+            end 
+        else if SUPPLY_NPC_PATH.Index > 2 and SUPPLY_NPC_PATH.Index < 6 then 
+            Mount() 
+        end 
+    end
+    end else 
+        TOWN:NavMove() 
+        Mount()
     end
     end
     end return out
 end
 
-local function Mail() local out = {} local FP_ALLIANCE_MAIL = FixedPath({ { x = 175.786591, y = 1181.954590, z = 166.206955, node = 1 }, { x = 171.66279602051, y = 1226.8649902344, z = 167.50204467773, node = 2 }, { x = 195.74557495117, y = 1242.3563232422, z = 180.27439880371, node = 3 }, { x = 207.22557067871, y = 1265.0812988281, z = 190.48210144043, node = 4 }, { x = 219.95957946777, y = 1289.0776367188, z = 190.39556884766, node = 5 }, { x = 247.01016235352, y = 1291.7928466797, z = 190.5594329834, node = 6 }, }, 2, true) local FP_HORDE_MAIL = FixedPath({ { x = -1667.3774414063, y = 3084.8557128906, z = 30.538818359375, node = 0 }, { x = -1647.2806396484, y = 3089.8220214844, z = 30.878978729248, node = 1 }, { x = -1622.4598388672, y = 3103.5979003906, z = 38.59907913208, node = 2 }, { x = -1609.7840576172, y = 3117.9523925781, z = 44.717292785645, node = 3 }, }, 2, true) local MAIL = nil local MailBox = nil local TaskDone = false local function IsMail(TempItem) if TempItem.Name == ATP.Settings.FoodName then return false end if TempItem.Name == ATP.Settings.WaterName then return false end if TempItem.Name == ATP.Settings.MountName then return false end if ATP.Settings.BagItems then for _, v in pairs(ATP.Settings.BagItems) do if string.find(TempItem.Name, v) then return false end end end if IsSoulBound(TempItem.BagID, TempItem.Slot) then return false end return true end
+local function Mail() local out = {} local FP_ALLIANCE_MAIL = FixedPath({ { x = 175.786591, y = 1181.954590, z = 166.206955, node = 1 }, { x = 171.66279602051, y = 1226.8649902344, z = 167.50204467773, node = 2 }, { x = 195.74557495117, y = 1242.3563232422, z = 180.27439880371, node = 3 }, { x = 207.22557067871, y = 1265.0812988281, z = 190.48210144043, node = 4 }, { x = 219.95957946777, y = 1289.0776367188, z = 190.39556884766, node = 5 }, { x = 247.01016235352, y = 1291.7928466797, z = 190.5594329834, node = 6 }, }, 2, true) local FP_HORDE_MAIL = FixedPath({ { x = -1667.3774414063, y = 3084.8557128906, z = 30.538818359375, node = 0 }, { x = -1647.2806396484, y = 3089.8220214844, z = 30.878978729248, node = 1 }, { x = -1622.4598388672, y = 3103.5979003906, z = 38.59907913208, node = 2 }, { x = -1609.7840576172, y = 3117.9523925781, z = 44.717292785645, node = 3 }, }, 2, true) 
+    
+    local MAIL = nil 
+    local MailBox = nil 
+    local TaskDone = false 
+    
+    local function IsMail(TempItem)
+        if TempItem.Name == ATP.Settings.FoodName then 
+            return false 
+        end 
+        if TempItem.Name == ATP.Settings.WaterName then 
+            return false 
+        end 
+        if TempItem.Name == ATP.Settings.MountName then 
+            return false 
+        end 
+        if ATP.Settings.BagItems then 
+            for _, v in pairs(ATP.Settings.BagItems) do 
+                if string.find(TempItem.Name, v) then 
+                    return false 
+                end 
+            end 
+        end 
+        if IsSoulBound(TempItem.BagID, TempItem.Slot) then 
+            return false 
+        end 
+        return true 
+    end
 
-    local function SendGold() if not ATP.Settings.GoldUpperLimit or ATP.Settings.GoldUpperLimit < 0 then ATP.Settings.GoldUpperLimit = 0 end local money = GetMoney() local limit = (ATP.Settings.RemainGold + ATP.Settings.GoldUpperLimit) * 10000 if money > limit then SetSendMailMoney(money - ATP.Settings.RemainGold * 10000) print("ffffff", "邮寄金币" .. GetCoinTextureString(money - ATP.Settings.RemainGold * 10000)) end Delay(2000) SendMail(ATP.Settings.Addressee, "gold", "") end
+    local function SendGold() 
+        if not ATP.Settings.GoldUpperLimit or ATP.Settings.GoldUpperLimit < 0 then 
+            ATP.Settings.GoldUpperLimit = 0 
+        end 
+        local money = GetMoney() 
+        local limit = (ATP.Settings.RemainGold + ATP.Settings.GoldUpperLimit) * 10000 if money > limit then 
+            SetSendMailMoney(money - ATP.Settings.RemainGold * 10000) 
+            print("ffffff", "邮寄金币" .. GetCoinTextureString(money - ATP.Settings.RemainGold * 10000)) 
+        end 
+        Delay(2000) 
+        SendMail(ATP.Settings.Addressee, "gold", "") 
+    end
 
-    out.Reset = function() MAIL = nil MailBox = nil TaskDone = false FP_ALLIANCE_MAIL:Reset() FP_HORDE_MAIL:Reset() end out.Run = function() if not MAIL then if Player.Faction == "Horde" then MAIL = FP_HORDE_MAIL else MAIL = FP_ALLIANCE_MAIL end end if not ATP.Settings.Addressee or ATP.Settings.Addressee == "" then print( "未设置收件人") ChangeProcess(PROCESS_STATE.TAXI) else if MAIL.Index > 1 then Mount() end if MAIL:NavMove() then if not MailBox then for _, TempUnit in pairs(DMW.GameObjects) do if TempUnit.Name == CONST_STRING.Mailbox then MailBox = TempUnit break end end else if not MailFrame:IsShown() then ObjectInteract(MailBox.Pointer) Delay(1000) else if MailFrame.selectedTab == 1 then MailFrameTab2:Click() end local count = 0 for _, v in pairs(Bag.Items) do if IsMail(v) then count = count + 1 UseContainerItem(v.BagID, v.Slot) Delay(500) if count == 12 then break end end end local total = 0 for i = 1, ATTACHMENTS_MAX_SEND do if GetSendMailItemLink(i) then total = total + 1 end end if total == ATTACHMENTS_MAX_SEND then if GetMoney() >= total * 30 then SendMail(ATP.Settings.Addressee, GetSendMailItem(1), "") print( "邮寄%d个物品", total) Delay(1000) else print("ff000", "邮寄费用不够") TaskDone = true end elseif total > 0 and total < ATTACHMENTS_MAX_SEND then if GetMoney() >= total * 30 then SendMail(ATP.Settings.Addressee, GetSendMailItem(1), "") print( "邮寄%d个物品", total) Delay(1000) end TaskDone = true else TaskDone = true end if TaskDone then if ATP.Settings.SendGold then Delay(math.random(2000, 5000)) SendGold() end CloseMail() print( "邮寄完成") ChangeProcess(PROCESS_STATE.GOTO_INSTANCE) end
+    out.Reset = function() 
+        MAIL = nil 
+        MailBox = nil 
+        TaskDone = false 
+        FP_ALLIANCE_MAIL:Reset() 
+        FP_HORDE_MAIL:Reset() 
+    end 
+    
+    out.Run = function() 
+        if not MAIL then 
+            if Player.Faction == "Horde" then 
+                MAIL = FP_HORDE_MAIL 
+            else 
+                MAIL = FP_ALLIANCE_MAIL 
+            end 
+        end 
+        
+        if not ATP.Settings.Addressee or ATP.Settings.Addressee == "" then 
+            print( "未设置收件人") 
+            ChangeProcess(PROCESS_STATE.TAXI) 
+        else if MAIL.Index > 1 then 
+            Mount() 
+        end 
+        
+        if MAIL:NavMove() then 
+            if not MailBox then 
+                for _, TempUnit in pairs(DMW.GameObjects) do 
+                    if TempUnit.Name == CONST_STRING.Mailbox then 
+                        MailBox = TempUnit 
+                        break 
+                    end 
+                end 
+            else if not MailFrame:IsShown() then 
+                ObjectInteract(MailBox.Pointer) 
+                Delay(1000) 
+            else if MailFrame.selectedTab == 1 then 
+                MailFrameTab2:Click() 
+            end 
+            local count = 0 for _, v in pairs(Bag.Items) do 
+                if IsMail(v) then 
+                    count = count + 1 
+                    UseContainerItem(v.BagID, v.Slot) 
+                    Delay(500) 
+                    if count == 12 then 
+                        break 
+                    end 
+                end 
+            end 
+            local total = 0 for i = 1, ATTACHMENTS_MAX_SEND do 
+                if GetSendMailItemLink(i) then 
+                    total = total + 1 
+                end 
+            end 
+            if total == ATTACHMENTS_MAX_SEND then 
+                if GetMoney() >= total * 30 then 
+                    SendMail(ATP.Settings.Addressee, GetSendMailItem(1), "") 
+                    print( "邮寄%d个物品", total) 
+                    Delay(1000) 
+                else 
+                    print("ff000", "邮寄费用不够") 
+                    TaskDone = true 
+                end 
+            elseif total > 0 and total < ATTACHMENTS_MAX_SEND then 
+                if GetMoney() >= total * 30 then 
+                    SendMail(ATP.Settings.Addressee, GetSendMailItem(1), "") 
+                    print( "邮寄%d个物品", total) 
+                    Delay(1000) 
+                end 
+                
+                TaskDone = true 
+            else 
+                TaskDone = true 
+            end 
+            if TaskDone then 
+                if ATP.Settings.SendGold then 
+                    Delay(math.random(2000, 5000)) 
+                    SendGold() 
+                end 
+                CloseMail() 
+                print( "邮寄完成") 
+                ChangeProcess(PROCESS_STATE.GOTO_INSTANCE) 
+            end
     end
     end
     end
@@ -1638,7 +2191,56 @@ end
 
 local function GotoInstance() local out = {} local FP_TO_INSTANCE_CAVE = FixedPath({
     { x = -1422.8962401094, y = 2923.56982420313, z = 136.36808814453, node = 0 }, { x = -1425.0974121094, y = 2937.9340820313, z = 135.11309814453, node = 0 }, { x = -1430.2399902344, y = 2947.3159179688, z = 134.59143066406, node = 1 }, { x = -1448.5903320313, y = 2956.8503417969, z = 124.08094787598, node = 2 }, { x = -1472.0059814453, y = 2960.0764160156, z = 121.7999420166, node = 3 }, { x = -1474.4381103516, y = 2981.1130371094, z = 117.2380065918, node = 4 }, { x = -1440.1779785156, y = 2999.2492675781, z = 115.26843261719, node = 5 }, { x = -1429.9906005859, y = 2984.33203125, z = 115.15277099609, node = 6 }, { x = -1429.7142333984, y = 2970.9208984375, z = 99.914321899414, node = 7 }, { x = -1414.5109863281, y = 2936.0322265625, z = 95.258407592773, node = 8 }, { x = -1383.6011962891, y = 2915.7229003906, z = 92.062576293945, node = 9 }, { x = -1375.1783447266, y = 2880.4116210938, z = 90.423522949219, node = 10 }, { x = -1361.2800292969, y = 2857.5556640625, z = 88.29061126709, node = 11 }, { x = -1351.0166015625, y = 2850.3894042969, z = 87.236480712891, node = 12 }, { x = -1334.8046875, y = 2864.7707519531, z = 87.817695617676, node = 13 }, { x = -1308.2789306641, y = 2899.30859375, z = 88.706748962402, node = 14 }, { x = -1295.5952148438, y = 2920.7302246094, z = 88.361763000488, node = 15 }, { x = -1288.9558105469, y = 2925.4123535156, z = 88.201721191406, node = 16 }, { x = -1278.8754882813, y = 2918.2045898438, z = 87.928436279297, node = 17 }, { x = -1270.0025634766, y = 2905.0349121094, z = 87.78995513916, node = 18 }, { x = -1242.8426513672, y = 2904.4689941406, z = 86.826309204102, node = 19 }, { x = -1214.0223388672, y = 2898.732421875, z = 86.045944213867, node = 20 }, { x = -1196.7885742188, y = 2886.1545410156, z = 85.983383178711, node = 21 }, { x = -1188.8582763672, y = 2878.8071289063, z = 85.751510620117, node = 22 },
-}, 1.5, true) local FP_ALLIANCE_TO_INSTANCE = FixedPath({ { x = -1175.635620, y = 2729.212646, z = 111.479103, node = 0 }, { x = -1190.241699, y = 2797.076660, z = 112.030327, node = 0 }, { x = -1420.571411, y = 2890.588379, z = 132.912918, node = 0 }, }, 2, true) local FP_HORDE_TO_INSTANCE = FixedPath({ { x = -1420.571411, y = 2890.588379, z = 132.912918, node = 0 }, }, 2, true) local FP_TO_INSTANCE = nil out.Reset = function() FP_TO_INSTANCE = nil FP_ALLIANCE_TO_INSTANCE:Reset() FP_HORDE_TO_INSTANCE:Reset() FP_TO_INSTANCE_CAVE:Reset() end out.Run = function() if not FP_TO_INSTANCE then if Player.Faction == "Horde" then FP_TO_INSTANCE = FP_HORDE_TO_INSTANCE else FP_TO_INSTANCE = FP_ALLIANCE_TO_INSTANCE end else if not IsMounted() then if Buff.IceArmor:Remain() < 1200 and Spell.IceArmor:IsReady() and Spell.IceArmor:Cast() then print( "释放冰甲术成功") end if not Buff.IceBarrier:Exist() and Spell.IceBarrier:IsReady() and Spell.IceBarrier:Cast() then end end if CONST_STRING.ZoneInstanceText == GetZoneText() or FP_TO_INSTANCE:NavMove() then if FP_TO_INSTANCE_CAVE:Move() then ChangeProcess(PROCESS_STATE.RESET_INSTANCE) else if FP_TO_INSTANCE_CAVE.Index == 1 or FP_TO_INSTANCE_CAVE.Index == 2 then for _, k in pairs(DMW.GameObjects) do if k.Distance < 5 and ObjectDisplayID(k.Pointer) == 4791 then Dismount() ObjectInteract(k.Pointer) break end end end end else if FP_TO_INSTANCE.Index == 1 then Mount() end end end end return out
+}, 1.5, true) 
+
+local FP_ALLIANCE_TO_INSTANCE = FixedPath({ 
+    { x = -1175.635620, y = 2729.212646, z = 111.479103, node = 0 }, 
+    { x = -1190.241699, y = 2797.076660, z = 112.030327, node = 0 }, 
+    { x = -1420.571411, y = 2890.588379, z = 132.912918, node = 0 }, }, 2, true) 
+    
+    local FP_HORDE_TO_INSTANCE = FixedPath({ 
+        { x = -1420.571411, y = 2890.588379, z = 132.912918, node = 0 }, }, 2, true) 
+        
+        local FP_TO_INSTANCE = nil 
+        out.Reset = function() 
+            FP_TO_INSTANCE = nil 
+            FP_ALLIANCE_TO_INSTANCE:Reset() 
+            FP_HORDE_TO_INSTANCE:Reset() 
+            FP_TO_INSTANCE_CAVE:Reset() 
+        end 
+        
+        out.Run = function() 
+            if not FP_TO_INSTANCE then 
+                if Player.Faction == "Horde" then 
+                    FP_TO_INSTANCE = FP_HORDE_TO_INSTANCE 
+                else 
+                    FP_TO_INSTANCE = FP_ALLIANCE_TO_INSTANCE 
+                end 
+            
+            else if not IsMounted() then 
+                if Buff.IceArmor:Remain() < 1200 and Spell.IceArmor:IsReady() and Spell.IceArmor:Cast() then 
+                    print( "释放冰甲术成功") 
+                end 
+                
+                if not Buff.IceBarrier:Exist() and Spell.IceBarrier:IsReady() and Spell.IceBarrier:Cast() then 
+                end 
+            end 
+            
+            if CONST_STRING.ZoneInstanceText == GetZoneText() or FP_TO_INSTANCE:NavMove() then 
+                if FP_TO_INSTANCE_CAVE:Move() then 
+                    ChangeProcess(PROCESS_STATE.RESET_INSTANCE) 
+                else if FP_TO_INSTANCE_CAVE.Index == 1 or FP_TO_INSTANCE_CAVE.Index == 2 then 
+                    for _, k in pairs(DMW.GameObjects) do if k.Distance < 5 and ObjectDisplayID(k.Pointer) == 4791 then 
+                        Dismount() ObjectInteract(k.Pointer) 
+                        break 
+                    end 
+                end 
+            end 
+        end 
+    else if FP_TO_INSTANCE.Index == 1 then 
+        Mount() 
+    end end end end 
+    return out
 end
 
 local function TownToInstance() local out = {} local FP_ALLIANCE_GOTO_INSTANCE = FixedPath({
@@ -1648,7 +2250,52 @@ local function TownToInstance() local out = {} local FP_ALLIANCE_GOTO_INSTANCE =
 }, 3, true) local GOTO_INSTANCE = nil out.Reset = function() GOTO_INSTANCE = nil FP_ALLIANCE_GOTO_INSTANCE:Reset() FP_HORDE_GOTO_INSTANCE:Reset() end out.Run = function() if Player.Faction == "Horde" then GOTO_INSTANCE = FP_HORDE_GOTO_INSTANCE else GOTO_INSTANCE = FP_ALLIANCE_GOTO_INSTANCE end if GOTO_INSTANCE:UnStuckMove() then ChangeProcess(PROCESS_STATE.RESET_INSTANCE) else if not IsMounted() then if not Buff.IceBarrier:Exist() and Spell.IceBarrier:IsReady() and Spell.IceBarrier:Cast() then return true end end Mount() end end return out
 end
 
-local function EnterInstance() local out = {} local IsSendMsg = false local FP_ENTER = FixedPath({ { x = -1183.4114990234, y = 2875.0837402344, z = 85.824409484863, node = 0 }, { x = -1182.9838867188, y = 2865.9333496094, z = 85.434700012207, node = 1 }, }, 1.5) out.Reset = function() FP_ENTER:Reset() IsSendMsg = false print("ffffff", "当前资产:%s", GetCoinTextureString(Assets())) end out.Run = function() if TOO_MANY_INSTANCES then TOO_MANY_INSTANCES = false print( "爆本，30秒后尝试进本.") RunMacroText("/sit") for i = 1, 30 do Delay(1000) if Player.Combat then break end end elseif PLAYER_ENTERING_WORLD then PLAYER_ENTERING_WORLD = false print( "场景切换等待2秒") Delay(2000) else if Player.Instance == "none" then if not IsSendMsg then SendPartyMessage(ATP.Settings.EnterFollow) IsSendMsg = true end if FP_ENTER:Move() then MoveForwardStart() Delay(500) MoveForwardStop() Delay(1000) FP_ENTER:Reset() end else ChangeProcess(PROCESS_STATE.START_SOLO) end end end return out end
+local function EnterInstance() 
+    local out = {} 
+    local IsSendMsg = false 
+    local FP_ENTER = FixedPath({ { x = -1183.4114990234, y = 2875.0837402344, z = 85.824409484863, node = 0 }, { x = -1182.9838867188, y = 2865.9333496094, z = 85.434700012207, node = 1 }, }, 1.5) 
+    
+    out.Reset = function() 
+        FP_ENTER:Reset() 
+        IsSendMsg = false 
+        print("ffffff", "当前资产:%s", GetCoinTextureString(Assets())) 
+    end 
+    
+    out.Run = function() 
+        if TOO_MANY_INSTANCES then 
+            TOO_MANY_INSTANCES = false 
+            print( "爆本，30秒后尝试进本.") 
+            RunMacroText("/sit") 
+            for i = 1, 30 do 
+                Delay(1000) 
+                if Player.Combat then 
+                    break 
+                end 
+            end 
+        elseif PLAYER_ENTERING_WORLD then 
+            PLAYER_ENTERING_WORLD = false 
+            print( "场景切换等待2秒") 
+            Delay(2000) 
+        else if Player.Instance == "none" then 
+            if not IsSendMsg then 
+                SendPartyMessage(ATP.Settings.EnterFollow) 
+                IsSendMsg = true 
+            end 
+            
+            if FP_ENTER:Move() then 
+                MoveForwardStart() 
+                Delay(500) 
+                MoveForwardStop() 
+                Delay(1000) 
+                FP_ENTER:Reset() 
+            end 
+        else 
+            ChangeProcess(PROCESS_STATE.START_SOLO) 
+        end 
+    end 
+end 
+return out 
+end
 
 local function ExitInstance() local out = {} local EXIT_STEP = 0 local IsSendMsg = false local FP_EXIT = FixedPath({ { x = 753.90783691406, y = -621.14678955078, z = -32.990432739258, node = 0 }, }, 1.5, true) out.Reset = function() EXIT_STEP = 0 IsSendMsg = false FP_EXIT:Reset() print("ffffff", "当前资产:%s", GetCoinTextureString(Assets())) end out.Run = function() if PLAYER_ENTERING_WORLD then PLAYER_ENTERING_WORLD = false print( "场景切换等待2秒") Delay(2000) else if Player.Instance == "none" then ChangeProcess(PROCESS_STATE.RESET_INSTANCE) else if Buff.IceArmor:Remain() < 1200 and Spell.IceArmor:IsReady() and Spell.IceArmor:Cast() then print( "释放冰甲术成功") end if FP_EXIT:NavMove() then local to = InstanceTimer.Timeout(4) if Player:GetFreeBagSlots() > ATP.Settings.FreeBagSlots then if to > 60 and to < 600 then ChangeProcess(PROCESS_STATE.TIMEOUT) return true elseif to < 60 then print( "爆本等待%d秒", to) Delay(to * 1000) end end if not IsSendMsg then SendPartyMessage(ATP.Settings.ExitFollow) IsSendMsg = true end MoveForwardStart() Delay(2000) MoveForwardStop() Delay(1000) else if not Buff.IceBarrier:Exist() and Spell.IceBarrier:IsReady() and Spell.IceBarrier:Cast() then print( "释放寒冰护体成功") return true end end end end end return out
 end
