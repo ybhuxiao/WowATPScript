@@ -7,6 +7,9 @@
 ## SavedVariables: ATPSettings
 ## Dependencies: DoMeWhen-Classic
 
+Converter.lua
+
+
 # Libraries
 Libs\PLoop\PLoop.xml
 Libs\Scorpio\Scorpio.xml
