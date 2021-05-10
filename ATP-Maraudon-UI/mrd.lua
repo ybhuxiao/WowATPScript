@@ -1324,11 +1324,9 @@ local MageProtect = (function()
     end) 
     
     pFrame:SetScript("OnUpdate", function() 
-        if EWT and DMW then 
-            ATP_ICE_BARRIER_AMOUNT = MP.currentAbsorb["寒冰护体"] or 0 
-            LibDraw.SetColorRaw(0, 1, 0) 
-            LibDraw.Text(string.format("冰/法:%d/%d", MP.currentAbsorb["寒冰护体"], MP.currentAbsorb["法力护盾"]), "GameFontNormalSmall", Player.PosX, Player.PosY, Player.PosZ + 3) 
-        end 
+        ATP_ICE_BARRIER_AMOUNT = MP.currentAbsorb["寒冰护体"] or 0 
+        LibDraw.SetColorRaw(0, 1, 0) 
+        LibDraw.Text(string.format("冰/法:%d/%d", MP.currentAbsorb["寒冰护体"], MP.currentAbsorb["法力护盾"]), "GameFontNormalSmall", Player.PosX, Player.PosY, Player.PosZ + 3) 
     end) 
     
     MP.Handler = function(...) 
@@ -1448,12 +1446,17 @@ local CURRENT_PROCESS = PROCESS_STATE.EXIT_INSTANCE
 local LAST_PROCESS 
 local PROCESS_ROUTER = {} 
 
+
+
 local function ChangeProcess(Process) 
+    print("测试。。1111")
     print( string.format("%s %s", CURRENT_PROCESS, Process)) 
     LAST_PROCESS = CURRENT_PROCESS 
     CURRENT_PROCESS = Process 
     PROCESS_ROUTER[CURRENT_PROCESS].Reset() 
 end
+
+
 
 local UpdateBlizzardTime = function(elapsed) 
     local info = { ChannelInfo("player") } 
@@ -1478,7 +1481,10 @@ local UpdateBlizzardTime = function(elapsed)
     end 
 end 
 
+
+
 local function StartSolo() 
+    print("测试11111111111111111");
     local out = {} 
     local SOLO_STATE = { INIT = "INIT", PREPARE = "PREPARE", GET_READY = "GET_READY", LURE = "LURE", LURE_1 = "LURE_1", LURE_2 = "LURE_2", LURE_EX = "LURE_EX", GATHER_1 = "GATHER_1", COMBAT = "COMBAT", LOOT = "LOOT" } 
     
@@ -3473,20 +3479,30 @@ end },
     end
 
     out.Reset = function() 
+        print("重置。。。。。。。。。。。。。1111");
         Init() 
+        print("重置。。。。。。。。。。。。。12");
         LURE_STOP_MOVE = false 
+        print("重置。。。。。。。。。。。。。13");
         PREPARE_STEP = 0 
         LOOT_TARGET = nil 
         FP_LOOT_TARGET = nil 
         POS_BUFFER = nil 
         BLIZZARD_CASTING_TIME = 0 
         FP_PREPARE:Reset() 
+        print("重置。。。。。。。。。。。。。14");
         FP_TREE:Reset() 
+        print("重置。。。。。。。。。。。。。15");
         FP_INSIDE:Reset() 
+        print("重置。。。。。。。。。。。。。16");
         FP_COMBAT:Reset() 
+        print("重置。。。。。。。。。。。。。17");
         FM_LURE:Reset() 
+        print("重置。。。。。。。。。。。。。18");
         FM_LURE_EX:Reset() 
+        print("重置。。。。。。。。。。。。。19");
         FM_LOOT:Reset() 
+        print("重置。。。。。。。。。。。。。20");
         CURRENT_STATE = SOLO_STATE.PREPARE 
         CATCH_BLIZZARD_TIME = nil 
         APT_LAST_BLIZZARD_POSITION = nil 
@@ -3498,6 +3514,8 @@ end },
         COMBAT_STEP = 1 
         FIRST_COMBAT = true 
         
+        print("test =");
+        print(ATP.Settings.Mode);
         if ATP.Settings.Mode == 1 then 
             print( "当前模式:紫门一波") 
         else 
@@ -3822,7 +3840,7 @@ end
             end 
         end 
         
-        if COMBAT_STEP == 2 then 
+        if COMBAT_STEP == 2 then  
             if ATP_BLIZZARD_START == 0 or (FIRST_COMBAT and ATP_BLIZZARD_TIME > 5060) or ATP_BLIZZARD_TIME > 6060 then 
                 if (Buff.IceBarrier:Remain() > 10 or not Spell.IceBarrier:IsReady()) and Buff.ManaShield:Remain() < 20 and Spell.ManaShield:IsReady() and Spell.ManaShield:Cast() then 
                     return true 
@@ -4060,6 +4078,7 @@ local function IsSell(TempItem)
 end
 
     out.Reset = function() 
+        print("重置。。。。。。。。。。。。。2");
         TOWN = nil 
         SUPPLY_ZONE = nil 
         SUPPLY_NPC_NAME = nil 
@@ -4236,6 +4255,7 @@ local function Mail() local out = {} local FP_ALLIANCE_MAIL = FixedPath({ { x = 
     end
 
     out.Reset = function() 
+        print("重置。。。。。。。。。。。。。3");
         MAIL = nil 
         MailBox = nil 
         TaskDone = false 
@@ -4324,7 +4344,9 @@ local function Mail() local out = {} local FP_ALLIANCE_MAIL = FixedPath({ { x = 
     end return out
 end
 
-local function GotoInstance() local out = {} local FP_TO_INSTANCE_CAVE = FixedPath({
+local function GotoInstance() 
+    local out = {} 
+    local FP_TO_INSTANCE_CAVE = FixedPath({
     { x = -1422.8962401094, y = 2923.56982420313, z = 136.36808814453, node = 0 }, { x = -1425.0974121094, y = 2937.9340820313, z = 135.11309814453, node = 0 }, { x = -1430.2399902344, y = 2947.3159179688, z = 134.59143066406, node = 1 }, { x = -1448.5903320313, y = 2956.8503417969, z = 124.08094787598, node = 2 }, { x = -1472.0059814453, y = 2960.0764160156, z = 121.7999420166, node = 3 }, { x = -1474.4381103516, y = 2981.1130371094, z = 117.2380065918, node = 4 }, { x = -1440.1779785156, y = 2999.2492675781, z = 115.26843261719, node = 5 }, { x = -1429.9906005859, y = 2984.33203125, z = 115.15277099609, node = 6 }, { x = -1429.7142333984, y = 2970.9208984375, z = 99.914321899414, node = 7 }, { x = -1414.5109863281, y = 2936.0322265625, z = 95.258407592773, node = 8 }, { x = -1383.6011962891, y = 2915.7229003906, z = 92.062576293945, node = 9 }, { x = -1375.1783447266, y = 2880.4116210938, z = 90.423522949219, node = 10 }, { x = -1361.2800292969, y = 2857.5556640625, z = 88.29061126709, node = 11 }, { x = -1351.0166015625, y = 2850.3894042969, z = 87.236480712891, node = 12 }, { x = -1334.8046875, y = 2864.7707519531, z = 87.817695617676, node = 13 }, { x = -1308.2789306641, y = 2899.30859375, z = 88.706748962402, node = 14 }, { x = -1295.5952148438, y = 2920.7302246094, z = 88.361763000488, node = 15 }, { x = -1288.9558105469, y = 2925.4123535156, z = 88.201721191406, node = 16 }, { x = -1278.8754882813, y = 2918.2045898438, z = 87.928436279297, node = 17 }, { x = -1270.0025634766, y = 2905.0349121094, z = 87.78995513916, node = 18 }, { x = -1242.8426513672, y = 2904.4689941406, z = 86.826309204102, node = 19 }, { x = -1214.0223388672, y = 2898.732421875, z = 86.045944213867, node = 20 }, { x = -1196.7885742188, y = 2886.1545410156, z = 85.983383178711, node = 21 }, { x = -1188.8582763672, y = 2878.8071289063, z = 85.751510620117, node = 22 },
 }, 1.5, true) 
 
@@ -4338,6 +4360,7 @@ local FP_ALLIANCE_TO_INSTANCE = FixedPath({
         
         local FP_TO_INSTANCE = nil 
         out.Reset = function() 
+            print("重置。。。。。。。。。。。。。4");
             FP_TO_INSTANCE = nil 
             FP_ALLIANCE_TO_INSTANCE:Reset() 
             FP_HORDE_TO_INSTANCE:Reset() 
@@ -4382,7 +4405,33 @@ local function TownToInstance() local out = {} local FP_ALLIANCE_GOTO_INSTANCE =
     { x = -5377.42578125, y = -2972.5124511719, z = 323.16845703125, node = 0 }, { x = -5365.0043945313, y = -2969.1716308594, z = 326.77969360352, node = 1 }, { x = -5369.5961914063, y = -2953.3505859375, z = 323.67135620117, node = 2 }, { x = -5385.0673828125, y = -2927, z = 332.92776489258, node = 3 }, { x = -5400.9736328125, y = -2923.4992675781, z = 339.54806518555, node = 4 }, { x = -5424.578125, y = -2951.5642089844, z = 345.95294189453, node = 5 }, { x = -5437.87109375, y = -2991.3254394531, z = 355.42987060547, node = 6 }, { x = -5453.376953125, y = -3022.8894042969, z = 356.60565185547, node = 7 }, { x = -5464.9111328125, y = -3059.1833496094, z = 352.05017089844, node = 8 }, { x = -5481.1171875, y = -3077.4206542969, z = 350.80032348633, node = 9 }, { x = -5508.5590820313, y = -3106.2612304688, z = 345.82238769531, node = 10 }, { x = -5580.611328125, y = -3158.8542480469, z = 330.48812866211, node = 11 }, { x = -5646.513671875, y = -3204.8505859375, z = 325.73205566406, node = 12 }, { x = -5711.56640625, y = -3242.0153808594, z = 313.3424987793, node = 13 }, { x = -5745.0610351563, y = -3259.0432128906, z = 309.71276855469, node = 14 }, { x = -5791.15234375, y = -3271.6765136719, z = 299.01388549805, node = 15 }, { x = -5843.935546875, y = -3277.3669433594, z = 295.05892944336, node = 16 }, { x = -5901.673828125, y = -3285.3525390625, z = 287.63687133789, node = 17 }, { x = -5968.4897460938, y = -3293.533203125, z = 272.79830932617, node = 18 }, { x = -6041.6982421875, y = -3312.4260253906, z = 257.74719238281, node = 19 }, { x = -6102.0390625, y = -3338.28515625, z = 253.49481201172, node = 20 }, { x = -6160.9331054688, y = -3383.3037109375, z = 243.10452270508, node = 21 }, { x = -6237.2680664063, y = -3461.0432128906, z = 240.25871276855, node = 22 }, { x = -6263.3466796875, y = -3482.0270996094, z = 251.26318359375, node = 23 }, { x = -6304.7797851563, y = -3499.7346191406, z = 249.24169921875, node = 24 }, { x = -6334.5815429688, y = -3539.2646484375, z = 241.6809387207, node = 25 }, { x = -6349.9956054688, y = -3585.7517089844, z = 241.67155456543, node = 26 }, { x = -6383.7275390625, y = -3636.0070800781, z = 242.01200866699, node = 27 }, { x = -6451.8227539063, y = -3658.6145019531, z = 243.0505065918, node = 28 }, { x = -6552.5844726563, y = -3640.8684082031, z = 244.39126586914, node = 29 }, { x = -6581.4501953125, y = -3654.0952148438, z = 253.70764160156, node = 30 }, { x = -6593.3208007813, y = -3673.5236816406, z = 262.4089050293, node = 31 }, { x = -6612.6733398438, y = -3709.8972167969, z = 267.65869140625, node = 32 }, { x = -6616.4599609375, y = -3718.0268554688, z = 268.80313110352, node = 33 }, { x = -6630.791015625, y = -3723.9497070313, z = 267.37048339844, node = 34 }, { x = -6636.9477539063, y = -3739.93359375, z = 265.20349121094, node = 35 }, { x = -6634.9033203125, y = -3758.9440917969, z = 266.06521606445, node = 36 }, { x = -6624.4809570313, y = -3765.7458496094, z = 266.22201538086, node = 37 },
 }, 3, true) local FP_HORDE_GOTO_INSTANCE = FixedPath({
     { x = -6666.9838867188, y = -2172.1479492188, z = 245.3729095459, node = 0 }, { x = -6672.60546875, y = -2180.3791503906, z = 243.90158081055, node = 1 }, { x = -6627.052734375, y = -2224.3923339844, z = 244.14366149902, node = 2 }, { x = -6606.669921875, y = -2299.0612792969, z = 244.14366149902, node = 3 }, { x = -6598.3940429688, y = -2347.5578613281, z = 244.25566101074, node = 4 }, { x = -6615.0776367188, y = -2369.3444824219, z = 244.24868774414, node = 5 }, { x = -6616.2998046875, y = -2410.5375976563, z = 245.37187194824, node = 6 }, { x = -6645.6015625, y = -2473.4775390625, z = 244.49658203125, node = 7 }, { x = -6774.1508789063, y = -2757.5119628906, z = 241.97062683105, node = 8 }, { x = -6807.6362304688, y = -2819.029296875, z = 242.24906921387, node = 9 }, { x = -6815.83203125, y = -2843.2287597656, z = 241.66667175293, node = 10 }, { x = -6826.4399414063, y = -2966.7192382813, z = 246.39083862305, node = 11 }, { x = -6780.6220703125, y = -3076.8774414063, z = 244.48320007324, node = 12 }, { x = -6759.5390625, y = -3122.8352050781, z = 243.48783874512, node = 13 }, { x = -6749.5546875, y = -3173.5380859375, z = 246.61152648926, node = 14 }, { x = -6722.0087890625, y = -3217.2587890625, z = 244.25843811035, node = 15 }, { x = -6704.576171875, y = -3261.8891601563, z = 240.74365234375, node = 16 }, { x = -6703.57421875, y = -3339.2546386719, z = 241.18878173828, node = 17 }, { x = -6683.0185546875, y = -3485.2824707031, z = 253.74125671387, node = 18 }, { x = -6648.0141601563, y = -3581.9658203125, z = 241.66725158691, node = 19 }, { x = -6614.4916992188, y = -3646.5693359375, z = 251.05111694336, node = 20 }, { x = -6606.2734375, y = -3658.568359375, z = 255.40629577637, node = 21 }, { x = -6607.8564453125, y = -3679.6123046875, z = 264.49731445313, node = 22 }, { x = -6610.6235351563, y = -3706.2702636719, z = 267.51919555664, node = 23 }, { x = -6619.7407226563, y = -3718.9780273438, z = 268.73266601563, node = 24 }, { x = -6631.1684570313, y = -3725.7795410156, z = 267.29138183594, node = 25 }, { x = -6636.1684570313, y = -3735.3447265625, z = 265.6462097168, node = 26 }, { x = -6635.4868164063, y = -3754.8657226563, z = 266.39651489258, node = 27 }, { x = -6624.2084960938, y = -3765.9350585938, z = 266.30606079102, node = 28 },
-}, 3, true) local GOTO_INSTANCE = nil out.Reset = function() GOTO_INSTANCE = nil FP_ALLIANCE_GOTO_INSTANCE:Reset() FP_HORDE_GOTO_INSTANCE:Reset() end out.Run = function() if Player.Faction == "Horde" then GOTO_INSTANCE = FP_HORDE_GOTO_INSTANCE else GOTO_INSTANCE = FP_ALLIANCE_GOTO_INSTANCE end if GOTO_INSTANCE:UnStuckMove() then ChangeProcess(PROCESS_STATE.RESET_INSTANCE) else if not IsMounted() then if not Buff.IceBarrier:Exist() and Spell.IceBarrier:IsReady() and Spell.IceBarrier:Cast() then return true end end Mount() end end return out
+}, 3, true) 
+
+local GOTO_INSTANCE = nil 
+
+out.Reset = function() 
+    print("重置。。。。。。。。。。。。。6");
+    GOTO_INSTANCE = nil 
+    FP_ALLIANCE_GOTO_INSTANCE:Reset() 
+    FP_HORDE_GOTO_INSTANCE:Reset() 
+end 
+
+out.Run = function() 
+    if Player.Faction == "Horde" then 
+        GOTO_INSTANCE = FP_HORDE_GOTO_INSTANCE 
+    else 
+        GOTO_INSTANCE = FP_ALLIANCE_GOTO_INSTANCE 
+    end 
+    
+    if GOTO_INSTANCE:UnStuckMove() then 
+        ChangeProcess(PROCESS_STATE.RESET_INSTANCE) 
+    else if not IsMounted() then 
+        if not Buff.IceBarrier:Exist() and Spell.IceBarrier:IsReady() and Spell.IceBarrier:Cast() then 
+            return true  
+        end 
+    end 
+    Mount() 
+end end return out
 end
 
 local function EnterInstance() 
@@ -4391,6 +4440,7 @@ local function EnterInstance()
     local FP_ENTER = FixedPath({ { x = -1183.4114990234, y = 2875.0837402344, z = 85.824409484863, node = 0 }, { x = -1182.9838867188, y = 2865.9333496094, z = 85.434700012207, node = 1 }, }, 1.5) 
     
     out.Reset = function() 
+        print("重置。。。。。。。。。。。。。7");
         FP_ENTER:Reset() 
         IsSendMsg = false 
         print("ffffff", "当前资产:%s", GetCoinTextureString(Assets())) 
@@ -4439,6 +4489,7 @@ local function ExitInstance()
     local FP_EXIT = FixedPath({ { x = 753.90783691406, y = -621.14678955078, z = -32.990432739258, node = 0 }, }, 1.5, true) 
     
     out.Reset = function() 
+        print("重置。。。。。。。。。。。。。8");
         EXIT_STEP = 0 
         IsSendMsg = false 
         FP_EXIT:Reset() 
@@ -4488,6 +4539,7 @@ local function ResetInstance()
         
         local IsReset = false 
         out.Reset = function() 
+            print("重置。。。。。。。。。。。。。9");
             IsReset = false 
             FP_ENTER:Reset() 
         end 
@@ -4540,6 +4592,7 @@ local function Timeout()
     local IsSendMsg = false 
     
     out.Reset = function() 
+        print("重置。。。。。。。。。。。。。10");
         time = 0 
         FP_WAIT:Reset() 
         doBandage = true 
@@ -4603,6 +4656,7 @@ local function Resurrection()
     local IsReset = false 
     
     out.Reset = function() 
+        print("重置。。。。。。。。。。。。。11");
         DeadZone = 0 
         CorpsePaths = nil 
         CorpsePosX, CorpsePosY, CorpsePosZ = nil, nil, nil 
@@ -4735,14 +4789,17 @@ function EventFrame.BAG_UPDATE_DELAYED(...) Bag:UpdateItems() end
 
 local SystemStop = false 
 
+
 local ATP_CMD = function(CMD) 
     CMD = string.upper(CMD) 
     if PROCESS_STATE[CMD] then 
         if not ATP_START_TASK then 
             print( "开始运行") 
             ChangeProcess(PROCESS_STATE[CMD]) 
+            print( "开始运行................................") 
             SystemStop = false 
             ATP_START_TASK = true 
+            print("测试2--------------")
             Scorpio.Continue(ATP_ProcessRun) end 
         elseif CMD == "STOP" then 
             print( "停止运行") 
@@ -4800,7 +4857,7 @@ frame:SetScript("OnUpdate", function(self, elapsed)
     
     ATP_TIME = GetTime() 
     
-    if EWT and EWT.print and GetObjectWithGUID then 
+    if wmbapi and wmbapi.GetObjectWithGUID then 
         if not frame.Loaded then 
             frame.Loaded = true Locals() 
             if WindowsHeight == 0 or WindowsWidth == 0 then 
@@ -4867,6 +4924,7 @@ PROCESS_ROUTER[PROCESS_STATE.EXIT_INSTANCE] = ExitInstance()
 PROCESS_ROUTER[PROCESS_STATE.RESET_INSTANCE] = ResetInstance() 
 PROCESS_ROUTER[PROCESS_STATE.RESURRECTION] = Resurrection() 
 PROCESS_ROUTER[PROCESS_STATE.TIMEOUT] = Timeout() 
+
 
 local LastCheckTokenTime 
 local CheckTokenTimeout 
